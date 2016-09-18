@@ -17,13 +17,13 @@ class Profile(models.Model):
 		return "Profile for {}".format(self.user.first_name+", "+self.user.last_name)
 
 class Job(models.Model):
+	skills_required = models.CharField(max_length=1000) # store array as a JSON string
 	requester_id = models.ForeignKey(User, related_name='requester')
 	servicer_id = models.ForeignKey(User, related_name='servicer')
 	compensation = models.DecimalField(decimal_places=2, max_digits=10)
 	event_time = models.DateTimeField()
 	location = models.CharField(max_length=200) # TODO: Change to Address class in the future
 	time_required = models.DecimalField(decimal_places=2, max_digits=10)
-	skills_required = models.CharField(max_length=1000) # store array as a JSON string
 
 class Message(models.Model):
 	sender_id = models.ForeignKey(User, related_name='sender')

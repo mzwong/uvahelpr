@@ -6,9 +6,10 @@ from django.views.decorators.http import require_http_methods
 from django.core.exceptions import ObjectDoesNotExist
 from json import dumps
 from django.forms.models import model_to_dict
+from django.core import serializers
 
-from .forms import UserForm, ProfileForm
-from .models import Profile
+from .forms import UserForm, ProfileForm, JobForm
+from .models import Profile, Job
 
 ############ VIEWS ####################
 
@@ -25,7 +26,7 @@ def create_user(request):
 	profile_form = ProfileForm(request.POST)
 	if user_form.is_valid() and profile_form.is_valid():
 		user = user_form.save()
-		profile = profile_form.save()
+		profile = profile_form.save(commit=False)
 		profile.user = user
 		profile.save()
 		result["ok"] = True
@@ -48,6 +49,36 @@ def delete_user(request):
 	except ObjectDoesNotExist:
 		result["ok"] = False
 		result["result"] = "User does not exist."
+	return JsonResponse(result)
+
+#Creating a job
+@require_http_methods(["POST"])
+def create_job(request):
+	result = {}
+	job_form = JobForm(request.POST)
+	if job_form.is_valid():
+		job = job_form.save()
+		job.save()
+		result["ok"] = True
+		result["result"] = {"id": job.id}
+	else:
+		result["ok"] = False
+		result["result"] = "Invalid form data."
+		result["submitted_data"] = dumps(request.POST)
+	return JsonResponse(result)
+
+#Deleting a job
+@require_http_methods(["POST"])
+def delete_job(request):
+	result = {}
+	try:
+		job = Job.objects.get(pk=request.POST["id"])
+		job.delete()
+		result["ok"] = True
+		result["result"] = "Job succesfully deleted."
+	except ObjectDoesNotExist:
+		result["ok"] = False
+		result["result"] = "Job does not exist."
 	return JsonResponse(result)
 
 
@@ -89,3 +120,30 @@ class UserRU(View):
 			result["result"] = "User does not exist."
 		return JsonResponse(result)
 
+class JobRU(View):
+	def get(self, request, id):
+		result = {}
+		try:
+			job = Job.objects.get(pk=id)
+			result["ok"] = True
+			result["result"] = serializers.serialize("json", [job]);
+		except ObjectDoesNotExist:
+			result["ok"] = False
+			result["result"] = "Job does not exist."
+		return JsonResponse(result)
+
+	def post(self, request, id):
+		result = {}
+		try:
+			job = Job.objects.get(pk=id)
+			job_fields = [f.name for f in Job._meta.get_fields()]
+			for field in job_fields:
+				if field in request.POST:
+					setattr(job, field, request.POST[field])
+			job.save()
+			result["ok"] = True
+			result["result"] = "Job updated succesfully."
+		except ObjectDoesNotExist:
+			result["ok"] = False
+			result["result"] = "Job does not exist."
+		return JsonResponse(result)

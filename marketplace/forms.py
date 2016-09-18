@@ -1,5 +1,5 @@
 from django.contrib.auth.models import User
-from .models import Profile
+from .models import Profile, Job
 from django.forms.models import ModelForm
 
 class UserForm(ModelForm):
@@ -12,4 +12,7 @@ class ProfileForm(ModelForm):
         model = Profile
         fields = ['phone_number', 'skills']
 
-
+class JobForm(ModelForm):
+	class Meta:
+		model = Job
+		fields = ['skills_required','requester_id', 'servicer_id', 'compensation', 'event_time', 'location','time_required']
