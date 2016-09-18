@@ -126,7 +126,7 @@ class JobRU(View):
 		try:
 			job = Job.objects.get(pk=id)
 			result["ok"] = True
-			result["result"] = serializers.serialize("json", [job]);
+			result["result"] = model_to_dict(job);
 		except ObjectDoesNotExist:
 			result["ok"] = False
 			result["result"] = "Job does not exist."
