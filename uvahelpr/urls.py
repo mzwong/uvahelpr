@@ -18,5 +18,6 @@ from django.contrib import admin
 from . import views
 urlpatterns = [
     url(r'^market/', include('marketplace.urls')),
+    url(r'^api/', include('marketplace.urls')),
     url(r'^admin/', include(admin.site.urls)),
 ]
