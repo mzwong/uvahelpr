@@ -6,10 +6,9 @@ from django.views.decorators.http import require_http_methods
 from django.core.exceptions import ObjectDoesNotExist
 from json import dumps
 from django.forms.models import model_to_dict
-from django.core import serializers
 
-from .forms import UserForm, ProfileForm, JobForm
-from .models import Profile, Job
+from .forms import UserForm, ProfileForm, JobForm, MessageForm
+from .models import Profile, Job, Message
 
 ############ VIEWS ####################
 
@@ -81,6 +80,35 @@ def delete_job(request):
 		result["result"] = "Job does not exist."
 	return JsonResponse(result)
 
+#Creating a message
+@require_http_methods(["POST"])
+def create_message(request):
+	result = {}
+	message_form = MessageForm(request.POST)
+	if message_form.is_valid():
+		message = message_form.save()
+		message.save()
+		result["ok"] = True
+		result["result"] = {"id": message.id}
+	else:
+		result["ok"] = False
+		result["result"] = "Invalid form data."
+		result["submitted_data"] = dumps(request.POST)
+	return JsonResponse(result)
+
+#Deleting a message
+@require_http_methods(["POST"])
+def delete_message(request):
+	result = {}
+	try:
+		message = Message.objects.get(pk=request.POST["id"])
+		message.delete()
+		result["ok"] = True
+		result["result"] = "Message succesfully deleted."
+	except ObjectDoesNotExist:
+		result["ok"] = False
+		result["result"] = "Message does not exist."
+	return JsonResponse(result)
 
 ########## Class-based #######################
 
@@ -146,4 +174,32 @@ class JobRU(View):
 		except ObjectDoesNotExist:
 			result["ok"] = False
 			result["result"] = "Job does not exist."
+		return JsonResponse(result)
+
+class MessageRU(View):
+	def get(self, request, id):
+		result = {}
+		try:
+			message = Message.objects.get(pk=id)
+			result["ok"] = True
+			result["result"] = model_to_dict(message);
+		except ObjectDoesNotExist:
+			result["ok"] = False
+			result["result"] = "Message does not exist."
+		return JsonResponse(result)
+
+	def post(self, request, id):
+		result = {}
+		try:
+			message = Message.objects.get(pk=id)
+			message_fields = [f.name for f in Message._meta.get_fields()]
+			for field in message_fields:
+				if field in request.POST:
+					setattr(message, field, request.POST[field])
+			message.save()
+			result["ok"] = True
+			result["result"] = "Message updated succesfully."
+		except ObjectDoesNotExist:
+			result["ok"] = False
+			result["result"] = "Message does not exist."
 		return JsonResponse(result)
