@@ -3,7 +3,28 @@ models:
     external_links:
       -  mysql:db
     volumes:
-      - ./:/app
+      - ./uvahelpr_models:/app
     ports:
       - "8001:8000"
-    command: bash -c "python manage.py loaddata db.json && mod_wsgi-express start-server --reload-on-changes ./uvahelpr/wsgi.py --url-alias /static ./static"
+    command: bash -c "python manage.py loaddata db.json && mod_wsgi-express start-server --reload-on-changes ./uvahelpr_models/wsgi.py "
+
+exp:
+    image: tp33/django
+    links:
+      -  models:models-api
+    volumes:
+      - ./uvahelpr_exp:/app
+    ports:
+      - "8002:8000"
+    command: bash -c "mod_wsgi-express start-server --reload-on-changes ./uvahelpr_exp/wsgi.py"
+
+web:
+    image: tp33/django
+    links:
+      -  exp:exp-api
+    volumes:
+      - ./uvahelpr_web:/app
+    ports:
+      - "8000:8000"
+    command: bash -c "mod_wsgi-express start-server --reload-on-changes ./uvahelpr_exp/wsgi.py --url-alias /static ./static"
+
