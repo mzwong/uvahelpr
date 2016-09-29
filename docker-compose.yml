@@ -26,5 +26,5 @@ web:
       - ./uvahelpr_web:/app
     ports:
       - "8000:8000"
-    command: bash -c "mod_wsgi-express start-server --reload-on-changes ./uvahelpr_exp/wsgi.py --url-alias /static ./static"
+    command: bash -c "mod_wsgi-express start-server --reload-on-changes ./uvahelpr_web/wsgi.py --url-alias /static ./static"
 
