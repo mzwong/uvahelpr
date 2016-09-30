@@ -13,9 +13,6 @@ from .models import Profile, Job, Message
 ############ VIEWS ####################
 
 ######### Function-based #############
-def index(request):
-	return render(request, 'marketplace/index.html')
-
 
 # Creating a user
 @require_http_methods(["POST"])
