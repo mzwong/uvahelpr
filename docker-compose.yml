@@ -6,7 +6,7 @@ models:
       - ./uvahelpr_models:/app
     ports:
       - "8001:8000"
-    command: bash -c "python manage.py loaddata db.json && mod_wsgi-express start-server --reload-on-changes ./uvahelpr_models/wsgi.py "
+    command: bash -c "python manage.py makemigrations && python manage.py migrate && python manage.py loaddata db.json && mod_wsgi-express start-server --reload-on-changes ./uvahelpr_models/wsgi.py "
 
 exp:
     image: tp33/django

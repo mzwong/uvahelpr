@@ -1,0 +1,11 @@
+{% extends "marketplace/base.html" %}
+{% block content %}
+<h1>View Job Postings</h1>
+{% for job in job_list %}
+<!-- 'job_entry' should be the name of the url to view a specific job -->
+    {% url 'job_entry' job.id as specific_job_url %}
+
+<h3><a href="{{ specific_job_url }}">{{ job.title }}</a></h3>
+	<p>{{ job.description }}</p>
+{% endfor %}
+{% endblock %}
