@@ -24,6 +24,8 @@ class Job(models.Model):
 	event_time = models.DateTimeField()
 	location = models.CharField(max_length=200) # TODO: Change to Address class in the future
 	time_required = models.DecimalField(decimal_places=2, max_digits=10)
+	title = models.CharField(max_length=200)
+	description = models.TextField(max_length=500)
 
 class Message(models.Model):
 	sender_id = models.ForeignKey(User, related_name='sender')
