@@ -18,5 +18,5 @@ from . import views
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^jobs/$', views.get_all_jobs, name='get_all_jobs'),
-    url(r'^jobs/(?P<id>[0-9]+)/$', views.job_entry, name='get_job'),
+    url(r'^jobs/(?P<id>[0-9]+)/$', views.job_summary, name='get_job'),
 ]
