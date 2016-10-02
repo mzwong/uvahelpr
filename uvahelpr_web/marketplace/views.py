@@ -31,6 +31,5 @@ def allJobs(request):
 	context = {'job_list' : resp["result"]}
 	return render(request, 'marketplace/jobslist.html', context)
 
-def home(request):
-	return render(request, 'marketplace/home.html')
+
 
