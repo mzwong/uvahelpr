@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from django.views.generic import View
 from django.http import JsonResponse
 from django.contrib.auth.models import User
@@ -45,6 +44,18 @@ def delete_user(request):
 	except ObjectDoesNotExist:
 		result["ok"] = False
 		result["result"] = "User does not exist."
+	return JsonResponse(result)
+
+#getting all jobs
+@require_http_methods(["GET"])
+def get_all_jobs(request):
+	result = {}
+	try:
+		result["ok"] = True
+		result["result"] = [model_to_dict(job) for job in Job.objects.all()]
+	except Exception:
+		result["ok"] = False
+		result["result"] = []
 	return JsonResponse(result)
 
 #Creating a job
@@ -151,7 +162,7 @@ class JobRU(View):
 		try:
 			job = Job.objects.get(pk=id)
 			result["ok"] = True
-			result["result"] = model_to_dict(job);
+			result["result"] = model_to_dict(job)
 		except ObjectDoesNotExist:
 			result["ok"] = False
 			result["result"] = "Job does not exist."

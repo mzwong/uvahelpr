@@ -14,7 +14,9 @@ Including another URLconf
 """
 from django.conf.urls import include, url
 from django.contrib import admin
-
+from . import views
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
+    url(r'^jobs/$', views.get_all_jobs, name='get_all_jobs'),
+    url(r'^jobs/(?P<id>[0-9]+)/$', views.job_summary, name='get_job'),
 ]
