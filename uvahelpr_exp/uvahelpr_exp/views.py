@@ -19,7 +19,18 @@ def job_summary(request, id):
     resp_json = urllib.request.urlopen(req).read().decode('utf-8')
     resp_dict = json.loads(resp_json)
     job = resp_dict['result']
-    newjob = {'id': job['id'], 'title': job['title'], 'description': job['description'], 'time_required': job['time_required'],
+    user_id = str(job['requester_id'])
+
+    req_user = urllib.request.Request('http://models-api:8000/api/v1/users/' + user_id + '/')
+    user_json = urllib.request.urlopen(req_user).read().decode('utf-8')
+    user_dict = json.loads(user_json)
+    user_info = user_dict['result']
+    firstname = user_info["first_name"]
+    lastname = user_info['last_name']
+    name = firstname + ' ' + lastname
+
+    newjob = {'id': job['id'], 'title': job['title'], 'requester': name, 'description': job['description'], 'time_required': job['time_required'],
               'event_time': job['event_time'], 'skills_required': job['skills_required'], 'compensation': job['compensation'], 'location':job['location']}
     result = json.dumps(newjob)
     return HttpResponse(result)
+

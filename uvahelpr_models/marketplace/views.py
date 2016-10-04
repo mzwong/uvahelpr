@@ -130,7 +130,7 @@ class UserRU(View):
 			result["ok"] = True
 			attr_dict = model_to_dict(user, fields=('id', 'username', 'email', 'first_name', 'last_name'))
 			attr_dict.update(model_to_dict(user.profile, fields=Profile.updateable_fields))
-			result["result"] = dumps(attr_dict)
+			result["result"] = attr_dict
 		except ObjectDoesNotExist:
 			result["ok"] = False
 			result["result"] = "User does not exist."
