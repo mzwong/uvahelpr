@@ -2,17 +2,17 @@ from django.http import HttpResponse
 import urllib.request
 import urllib.parse
 import json
+from django.http import JsonResponse
 
 def get_all_jobs(request):
     req = urllib.request.Request('http://models-api:8000/api/v1/jobs/')
     resp_json = urllib.request.urlopen(req).read().decode('utf-8')
     resp_dict = json.loads(resp_json)
-    filter = []
+    result = []
     for job in resp_dict['result']:
         newjob = {'id': job['id'], 'title': job['title'], 'description': job['description']}
-        filter.append(newjob)
-    result = json.dumps(filter)
-    return HttpResponse(result)
+        result.append(newjob)
+    return JsonResponse(result, safe=False)
 
 def job_summary(request, id):
     req = urllib.request.Request('http://models-api:8000/api/v1/jobs/' + id + '/')
@@ -29,9 +29,8 @@ def job_summary(request, id):
     lastname = user_info['last_name']
     name = firstname + ' ' + lastname
 
-    newjob = {x: job[x] for x in ['id', 'title', 'description', 'time_required', 'event_time', 'skills_required', 'compensation', 'location']}
-    newjob['requester'] = name
+    result = {x: job[x] for x in ['id', 'title', 'description', 'time_required', 'event_time', 'skills_required', 'compensation', 'location']}
+    result['requester'] = name
 
-    result = json.dumps(newjob)
-    return HttpResponse(result)
+    return JsonResponse(result)
 

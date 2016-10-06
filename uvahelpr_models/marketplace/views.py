@@ -40,7 +40,7 @@ def delete_user(request):
 		user = User.objects.get(pk=request.POST["id"])
 		user.delete()
 		result["ok"] = True
-		result["result"] = "User succesfully deleted."
+		result["result"] = "User successfully deleted."
 	except ObjectDoesNotExist:
 		result["ok"] = False
 		result["result"] = "User does not exist."
