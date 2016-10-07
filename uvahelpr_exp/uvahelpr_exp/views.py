@@ -8,12 +8,12 @@ def get_all_jobs(request):
     req = urllib.request.Request('http://models-api:8000/api/v1/jobs/')
     resp_json = urllib.request.urlopen(req).read().decode('utf-8')
     resp_dict = json.loads(resp_json)
-    fields = []
+    jobarray = []
     for job in resp_dict['result']:
         newjob = {'id': job['id'], 'title': job['title'], 'description': job['description']}
-        fields.append(newjob)
+        jobarray.append(newjob)
 
-    result = {'result': fields, 'ok': True}
+    result = {'result': jobarray, 'ok': True}
     return JsonResponse(result)
 
 def job_summary(request, id):
