@@ -14,7 +14,7 @@ def job_entry(request, id):
 	req = urllib.request.Request('http://exp-api:8000/jobs/' + id + '/')
 	resp_json = urllib.request.urlopen(req).read().decode('utf-8')
 	resp_dict = json.loads(resp_json)
-	context = {"job": resp_dict}
+	context = {"job": resp_dict['result']}
 	return render(request, 'marketplace/job_detail.html', context=context)
 
 def allJobs(request):
@@ -26,7 +26,7 @@ def allJobs(request):
 
 	resp_json = urllib.request.urlopen(req).read().decode('utf-8')
 	resp = json.loads(resp_json)
-	context = {'job_list' : resp}
+	context = {'job_list' : resp['result']}
 	return render(request, 'marketplace/jobslist.html', context)
 
 
