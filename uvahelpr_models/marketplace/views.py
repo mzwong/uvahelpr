@@ -40,7 +40,7 @@ def delete_user(request):
 		user = User.objects.get(pk=request.POST["id"])
 		user.delete()
 		result["ok"] = True
-		result["result"] = "User succesfully deleted."
+		result["result"] = "User successfully deleted."
 	except ObjectDoesNotExist:
 		result["ok"] = False
 		result["result"] = "User does not exist."
@@ -130,7 +130,7 @@ class UserRU(View):
 			result["ok"] = True
 			attr_dict = model_to_dict(user, fields=('id', 'username', 'email', 'first_name', 'last_name'))
 			attr_dict.update(model_to_dict(user.profile, fields=Profile.updateable_fields))
-			result["result"] = dumps(attr_dict)
+			result["result"] = attr_dict
 		except ObjectDoesNotExist:
 			result["ok"] = False
 			result["result"] = "User does not exist."
