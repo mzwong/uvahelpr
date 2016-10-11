@@ -32,3 +32,8 @@ class Message(models.Model):
 	recipient_id = models.ForeignKey(User, related_name='recipient')
 	text_body = models.TextField()
 	time_sent = models.DateTimeField()
+
+class Authenticator(models.Model):
+	authenticator = models.CharField(primary_key=True, max_length=255)
+	user_id = models.ForeignKey(User)
+	date_created = models.DateField(auto_now_add=True)

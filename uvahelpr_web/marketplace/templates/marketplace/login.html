@@ -1,0 +1,25 @@
+{% extends "marketplace/base.html" %}
+{% block content %}
+<div class="page-header">
+  <h1>User Login</h1>
+</div>
+
+<form action="/market/login/", method="post">
+    {% csrf_token %}
+    {% if form.errors %}
+        <p>Your username and password didn't match. Please try again.</p>
+    {% endif %}
+
+  <div class="form-group">
+    <label for="id_{{ form.email.name }}">Email Address</label>
+    <input type="email" class="form-control" name="{{ form.email.name }}" id="id_{{ form.email.name }}"  placeholder="Email">
+  </div>
+  <div class="form-group">
+    <label for="id_{{ form.password.name }}">Password</label>
+    <input type="password" class="form-control" name="{{ form.password.name }}" id="id_{{ form.password.name }}" placeholder="Password">
+  </div>
+    <button type="submit" class="btn btn-default">Submit</button>
+
+</form>
+
+{% endblock %}
