@@ -1,16 +1,15 @@
-from django.contrib.auth.models import User
-from .models import Profile, Job, Message
+from .models import HelprUser, Job, Message
 from django.forms.models import ModelForm
 
-class UserForm(ModelForm):
-    class Meta:
-        model = User
-        fields = ['username', 'email', 'password', 'first_name', 'last_name']
+# class UserForm(ModelForm):
+#     class Meta:
+#         model = User
+#         fields = []
 
-class ProfileForm(ModelForm):
+class HelprUserForm(ModelForm):
     class Meta:
-        model = Profile
-        fields = ['phone_number', 'skills']
+        model = HelprUser
+        fields = ['username', 'email', 'password', 'first_name', 'last_name', 'phone_number', 'skills']
 
 class JobForm(ModelForm):
 	class Meta:
