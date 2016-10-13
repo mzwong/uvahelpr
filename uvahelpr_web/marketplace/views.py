@@ -4,7 +4,7 @@ import urllib.parse
 import json
 from .forms import LoginForm
 from django.http import HttpResponseRedirect
-
+from django.core.urlresolvers import reverse
 # Create your views here.
 def index(request):
 	return render(request, 'marketplace/index.html')
@@ -12,6 +12,7 @@ def index(request):
 def login(request):
 	if request.method == 'GET':
 		form = LoginForm()
+		next = request.GET.get('next') or reverse('index')
 		return render(request, 'marketplace/login.html', {'form': form})
 	form = LoginForm(request.POST)
 	# check whether it's valid:
@@ -19,6 +20,7 @@ def login(request):
 		return render(request, 'marketplace/login.html', {'form': form})
 	email = form.cleaned_data['email']
 	password = form.cleaned_data['password']
+	next = form.cleaned_data.get('next') or reverse('index')
 	post_data = {'email': email, 'password': password}
 	post_encoded = urllib.parse.urlencode(post_data).encode('utf-8')
 	req = urllib.request.Request('http://exp-api:8000/login/', data=post_encoded, method='POST')
@@ -28,10 +30,10 @@ def login(request):
 		# couldn't log them in, send them back to login page with error
 		return render(request, 'marketplace/login.html', {'form': form})
 	# logged them in. set their login cookie and redirect to back to wherever they came from
-	authenticator = resp['resp']['authenticator']
+	authenticator = resp['result']['authenticator']
 	response = HttpResponseRedirect(next)
 	response.set_cookie("auth", authenticator)
-	return HttpResponseRedirect('/market/index/')
+	return response
 
 
 def job_entry(request, id):
