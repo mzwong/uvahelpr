@@ -1,18 +1,24 @@
 from django.test import TestCase, RequestFactory
 import json
 from .views import UserRU, JobRU, MessageRU, get_all_jobs
-from django.contrib.auth.models import User, AnonymousUser
-from .models import Profile, Job, Message
-from .forms import JobForm, MessageForm
+from django.contrib.auth.models import AnonymousUser
+from .models import HelprUser, Job, Message
+from .forms import JobForm, MessageForm, HelprUserForm
 
 class GetUsers(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
-        self.sample_user = User(username="faker", password="faker")
-        self.sample_user.save()
-        self.prof = Profile(phone_number="7324438712", skills="martial arts")
-        self.prof.user = self.sample_user
-        self.prof.save()
+        user_args = {
+            'username':"faker",
+            'password':"faker",
+            'email':"gg@virginia.edu" ,
+            'first_name':"sensei",
+            'last_name':"senpai",
+            'phone_number':"7324438712",
+            'skills':"martial arts"
+        }
+        self.sample_user = HelprUserForm(user_args)
+        self.sample_user = self.sample_user.save()
 
     def test_getting_user_fails_bad_id(self):
         request = self.factory.get('/api/v1/users/')
@@ -32,17 +38,23 @@ class GetUsers(TestCase):
         self.assertTrue(len(resp_dict["result"])!=0)
 
     def tearDown(self):
-         for user in User.objects.all():
+         for user in HelprUser.objects.all():
              user.delete()
 
 class GetJobs(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
-        self.sample_user = User(username="faker", password="faker")
-        self.sample_user.save()
-        self.prof = Profile(phone_number="7324438712", skills="martial arts")
-        self.prof.user = self.sample_user
-        self.prof.save()
+        user_args = {
+            'username':"faker",
+            'password':"faker",
+            'email':"gg@virginia.edu" ,
+            'first_name':"sensei",
+            'last_name':"senpai",
+            'phone_number':"7324438712",
+            'skills':"martial arts"
+        }
+        self.sample_user = HelprUserForm(user_args)
+        self.sample_user = self.sample_user.save()
         job_args = {'skills_required': 'awesomeness',
          'requester_id': self.sample_user.id,
          'servicer_id': self.sample_user.id,
@@ -80,7 +92,7 @@ class GetJobs(TestCase):
         self.assertTrue(len(resp_dict["result"])!=0)
 
     def tearDown(self):
-         for user in User.objects.all():
+         for user in HelprUser.objects.all():
              user.delete()
          for job in Job.objects.all():
              job.delete()
@@ -88,11 +100,17 @@ class GetJobs(TestCase):
 class GetMessages(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
-        self.sample_user = User(username="faker", password="faker")
-        self.sample_user.save()
-        self.prof = Profile(phone_number="7324438712", skills="martial arts")
-        self.prof.user = self.sample_user
-        self.prof.save()
+        user_args = {
+            'username':"faker",
+            'password':"faker",
+            'email':"gg@virginia.edu" ,
+            'first_name':"sensei",
+            'last_name':"senpai",
+            'phone_number':"7324438712",
+            'skills':"martial arts"
+        }
+        self.sample_user = HelprUserForm(user_args)
+        self.sample_user = self.sample_user.save()
         message_args = {'skills_required': 'awesomeness',
          'recipient_id': self.sample_user.id,
          'sender_id': self.sample_user.id,
@@ -120,7 +138,7 @@ class GetMessages(TestCase):
         self.assertTrue(len(result_dict["result"])!=0)
 
     def tearDown(self):
-         for user in User.objects.all():
+         for user in HelprUser.objects.all():
              user.delete()
          for message in Message.objects.all():
              message.delete()
