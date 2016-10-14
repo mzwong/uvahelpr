@@ -3,7 +3,10 @@ import urllib.request
 import urllib.parse
 import json
 from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 
+#this is probably a huge security issue.... needs to be fixed! #TODO
+@csrf_exempt
 def login(request):
     post_data = request.POST.dict()
     post_encoded = urllib.parse.urlencode(post_data).encode('utf-8')

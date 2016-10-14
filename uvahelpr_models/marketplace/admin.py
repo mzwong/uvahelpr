@@ -4,4 +4,5 @@ from .models import *
 admin.site.register(HelprUser)
 admin.site.register(Message)
 admin.site.register(Job)
+admin.site.register(Authenticator)
 

@@ -5,7 +5,7 @@
 </div>
 <form action="/market/login/", method="post">
     {% csrf_token %}
-    {% if form.errors %}
+    {% if form.errors or error%}
         <p>Your username and password didn't match. Please try again.</p>
     {% endif %}
 

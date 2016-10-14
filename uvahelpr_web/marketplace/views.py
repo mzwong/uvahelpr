@@ -3,7 +3,7 @@ import urllib.request
 import urllib.parse
 import json
 from .forms import LoginForm
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.core.urlresolvers import reverse
 # Create your views here.
 def index(request):
@@ -28,11 +28,11 @@ def login(request):
 	resp = json.loads(resp_json)
 	if not resp or not resp['ok']:
 		# couldn't log them in, send them back to login page with error
-		return render(request, 'marketplace/login.html', {'form': form})
+		return render(request, 'marketplace/login.html', {'form': form, 'error':True})
 	# logged them in. set their login cookie and redirect to back to wherever they came from
 	authenticator = resp['result']['authenticator']
 	response = HttpResponseRedirect(next)
-	response.set_cookie("auth", authenticator)
+	response.set_cookie("auth", authenticator["authenticator"])
 	return response
 
 
