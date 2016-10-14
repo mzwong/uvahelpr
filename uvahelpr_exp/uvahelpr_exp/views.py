@@ -31,7 +31,7 @@ def job_summary(request, id):
     resp_json = urllib.request.urlopen(req).read().decode('utf-8')
     resp_dict = json.loads(resp_json)
     job = resp_dict['result']
-    user_id = str(job['requester_id'])
+    user_id = str(job['requester'])
 
     req_user = urllib.request.Request('http://models-api:8000/api/v1/users/' + user_id + '/')
     user_json = urllib.request.urlopen(req_user).read().decode('utf-8')
