@@ -6,11 +6,39 @@ from json import dumps
 from django.forms.models import model_to_dict
 
 from .forms import  JobForm, MessageForm, HelprUserForm
-from .models import HelprUser, Job, Message
+from .models import HelprUser, Job, Message, Authenticator
+
+from django.contrib.auth import hashers
+import os
+import hmac
+# import django settings file
+from django.conf import settings
+
 
 ############ VIEWS ####################
 
 ######### Function-based #############
+#logging in a user
+@require_http_methods(["POST"])
+def login(request):
+	emailaddress = request.POST.get('email')
+	password = request.POST.get('password')
+	userfound = True
+	try:
+		user = HelprUser.objects.get(email=emailaddress)
+	except ObjectDoesNotExist:
+		userfound = False
+	resp = {}
+	if (userfound and hashers.check_password(password, user.password)):
+		resp['ok'] = True
+		authenticator_hash = hmac.new(key=settings.SECRET_KEY.encode('utf-8'), msg=os.urandom(32),digestmod='sha256').hexdigest()
+		authenticator = Authenticator.objects.create(auth_user=user, authenticator=authenticator_hash)
+		authenticator.save()
+		resp["result"] = {"authenticator" : model_to_dict(authenticator)}
+	else:
+		resp["ok"] = False
+		resp["result"] = "Invalid email or password"
+	return JsonResponse(resp)
 
 # Creating a user
 @require_http_methods(["POST"])
