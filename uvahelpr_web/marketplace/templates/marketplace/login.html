@@ -8,7 +8,10 @@
     {% if form.errors or error%}
         <p>Your username and password didn't match. Please try again.</p>
     {% endif %}
-
+    {% if form.errors %}
+        <p>{{form.errors}}</p>
+        <p>{{resp}}</p>
+    {% endif %}
   <div class="form-group">
     <label for="{{ form.email.id_for_label }}">Email Address</label>
     <input type="email" class="form-control" name="{{ form.email.name }}" id="{{ form.email.id_for_label }}"  placeholder="Email">

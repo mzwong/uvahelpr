@@ -44,7 +44,16 @@ def login(request):
 @require_http_methods(["POST"])
 def create_user(request):
 	result = {}
-	user_form = HelprUserForm(request.POST)
+	req_input = {
+		'username': request.POST['username'],
+		'email':request.POST['email'],
+		'password':hashers.make_password(request.POST['password']),
+		'first_name':request.POST['first_name'],
+		'last_name':request.POST['last_name'],
+		'phone_number':request.POST['phone_number'],
+		'skills': request.POST['skills']
+	}
+	user_form = HelprUserForm(req_input)
 	if user_form.is_valid() :
 		user = user_form.save()
 		result["ok"] = True
