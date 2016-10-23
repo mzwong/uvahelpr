@@ -28,7 +28,7 @@ def login(request):
 	resp = json.loads(resp_json)
 	if not resp or not resp['ok']:
 		# couldn't log them in, send them back to login page with error
-		return render(request, 'marketplace/login.html', {'form': form, 'error':True, 'resp': resp})
+		return render(request, 'marketplace/login.html', {'form': form, 'error':True})
 	# logged them in. set their login cookie and redirect to back to wherever they came from
 	authenticator = resp['result']['authenticator']
 	response = HttpResponseRedirect(next)

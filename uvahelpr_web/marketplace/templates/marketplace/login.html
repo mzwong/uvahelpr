@@ -5,12 +5,8 @@
 </div>
 <form action="/market/login/", method="post">
     {% csrf_token %}
-    {% if form.errors or error%}
+    {% if error or form.errors%}
         <p>Your username and password didn't match. Please try again.</p>
-    {% endif %}
-    {% if form.errors %}
-        <p>{{form.errors}}</p>
-        <p>{{resp}}</p>
     {% endif %}
   <div class="form-group">
     <label for="{{ form.email.id_for_label }}">Email Address</label>
