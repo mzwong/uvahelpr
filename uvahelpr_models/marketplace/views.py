@@ -40,6 +40,21 @@ def login(request):
 		resp["result"] = "Invalid email or password"
 	return JsonResponse(resp)
 
+def logout(request):
+	authkey = request.POST.get('auth')
+	resp = {}
+	userfound = True
+	try:
+		authenticator = Authenticator.objects.get(authenticator=authkey)
+		authenticator.delete()
+	except ObjectDoesNotExist:
+		userfound = False
+	if userfound:
+		resp["ok"] = True
+	else:
+		resp["ok"] = False
+	return JsonResponse(resp)
+
 def validate_auth_user(request):
 	authkey = request.POST.get('auth')
 	resp = {}

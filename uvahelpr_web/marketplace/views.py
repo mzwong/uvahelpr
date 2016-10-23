@@ -36,6 +36,18 @@ def login(request):
 	response.set_cookie("auth", authenticator["authenticator"])
 	return response
 
+def logout(request):
+	authkey = request.COOKIES.get('auth')
+	if authkey is not None:
+		post_data = {'auth': authkey}
+		post_encoded = urllib.parse.urlencode(post_data).encode('utf-8')
+		req = urllib.request.Request('http://exp-api:8000/logout/', data=post_encoded, method='POST')
+		urllib.request.urlopen(req).read().decode('utf-8')
+	response = HttpResponseRedirect('/market/')
+	response.delete_cookie('auth')
+	return response
+
+
 
 def job_entry(request, id):
 	# make a GET request and parse the returned JSON

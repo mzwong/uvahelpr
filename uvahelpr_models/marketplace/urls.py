@@ -13,5 +13,6 @@ urlpatterns = [
     url(r'^v1/messages/create/$', views.create_message, name="create_message"),
     url(r'^v1/messages/delete/$', views.delete_message, name="delete_message"),
     url(r'^v1/login/$', views.login, name="login"),
+    url(r'^v1/logout/$', views.logout, name="logout"),
     url(r'^v1/auth_user/$', views.validate_auth_user, name="auth_user"),
 ]
