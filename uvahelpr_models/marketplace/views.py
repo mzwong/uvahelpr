@@ -44,7 +44,9 @@ def login(request):
 @require_http_methods(["POST"])
 def create_user(request):
 	result = {}
-	req_input = {
+	result_msg = None
+	try:
+		req_input = {
 		'username': request.POST['username'],
 		'email':request.POST['email'],
 		'password':hashers.make_password(request.POST['password']),
@@ -52,15 +54,19 @@ def create_user(request):
 		'last_name':request.POST['last_name'],
 		'phone_number':request.POST['phone_number'],
 		'skills': request.POST['skills']
-	}
+		}
+	except KeyError:
+		req_input = {}
+		result_msg = "Input did not contain all the required fields."
 	user_form = HelprUserForm(req_input)
-	if user_form.is_valid() :
+	if user_form.is_valid():
 		user = user_form.save()
 		result["ok"] = True
 		result["result"] = {"id": user.id}
 	else:
+		result_msg = "Invalid form data." if result_msg is None else result_msg
 		result["ok"] = False
-		result["result"] = "Invalid form data."
+		result["result"] = result_msg
 		result["submitted_data"] = dumps(request.POST)
 	return JsonResponse(result)
 
