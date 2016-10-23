@@ -87,8 +87,13 @@ def create_account(request):
 	if not resp or not resp['ok']:
 	 	# couldn't create account, send them back to account page with error
 	 	return render(request, 'marketplace/create_account.html', {'form': form, 'error':True})
-	 # created account, redirect to success page
-	return HttpResponseRedirect(reverse('create_account_success'))
-
-def create_account_success(request):
-	return render(request, 'marketplace/create_account_success.html')
+	# created account, log-in, redirect to index
+	post_data = {'email': email, 'password': password}
+	post_encoded = urllib.parse.urlencode(post_data).encode('utf-8')
+	req = urllib.request.Request('http://exp-api:8000/login/', data=post_encoded, method='POST')
+	resp_json = urllib.request.urlopen(req).read().decode('utf-8')
+	resp = json.loads(resp_json)
+	authenticator = resp['result']['authenticator']
+	response = HttpResponseRedirect(reverse('index'))
+	response.set_cookie("auth", authenticator["authenticator"])
+	return response
