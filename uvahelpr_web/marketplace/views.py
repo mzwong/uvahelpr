@@ -1,6 +1,7 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 import urllib.request
 import urllib.parse
+from urllib.error import HTTPError
 import json
 from .forms import LoginForm
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
@@ -37,10 +38,13 @@ def login(request):
 
 
 def job_entry(request, id):
-	# make a GET request and parse the returned JSON                                                                                                                                                           # note, no timeouts, error handling or all the other things needed to do this for real
-	#req = urllib.request.Request('http://www.mocky.io/v2/57f001943d0000dc1e0dd7ca')
+	# make a GET request and parse the returned JSON
 	req = urllib.request.Request('http://exp-api:8000/jobs/' + id + '/')
-	resp_json = urllib.request.urlopen(req).read().decode('utf-8')
+	#redirect to all jobs view if job cannot be accessed/does not exist
+	try:
+		resp_json = urllib.request.urlopen(req).read().decode('utf-8')
+	except HTTPError:
+		return redirect('allJobs')
 	resp_dict = json.loads(resp_json)
 	context = {"job": resp_dict['result']}
 	return render(request, 'marketplace/job_detail.html', context=context)

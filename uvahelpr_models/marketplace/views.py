@@ -1,5 +1,5 @@
 from django.views.generic import View
-from django.http import JsonResponse
+from django.http import JsonResponse,HttpResponse
 from django.views.decorators.http import require_http_methods
 from django.core.exceptions import ObjectDoesNotExist
 from json import dumps
@@ -38,6 +38,22 @@ def login(request):
 	else:
 		resp["ok"] = False
 		resp["result"] = "Invalid email or password"
+	return JsonResponse(resp)
+
+def validate_auth_user(request):
+	authkey = request.POST.get('auth')
+	resp = {}
+	userfound = True
+	try:
+		authenticator = Authenticator.objects.get(authenticator=authkey)
+	except ObjectDoesNotExist:
+		userfound = False
+	if userfound:
+		resp["ok"] = True
+		resp["result"] = {"user": model_to_dict(authenticator.auth_user)}
+	else:
+		resp["ok"] = False
+		resp["result"] = "Invalid authenticator"
 	return JsonResponse(resp)
 
 # Creating a user
