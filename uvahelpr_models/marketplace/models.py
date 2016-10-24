@@ -41,4 +41,4 @@ class Message(models.Model):
 class Authenticator(models.Model):
 	authenticator = models.CharField(primary_key=True, max_length=255)
 	auth_user = models.ForeignKey(HelprUser, related_name='auth_user')
-	date_created = models.DateField(auto_now_add=True)
+	time_created = models.DateTimeField(auto_now_add=True)
