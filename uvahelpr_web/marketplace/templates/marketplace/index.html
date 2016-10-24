@@ -1,6 +1,25 @@
 {% extends "marketplace/base.html" %}
 {% block content %}
+<style>
+    h1, h3, .row{
+        text-align: center;
+    }
+    .row{
+        padding-top: 30px;
+    }
+</style>
 <h1>Welcome to uvaHelpr!</h1>
-<h3>Helping the UVA community helping itself.</h3>
-<h3><a href="{% url 'allJobs' %}">Available Jobs</a></h3>
+<h3>Helping the UVA community help itself.</h3>
+<br/>
+<div class="row">
+    <div class="col-xs-6">
+        <a href="{% url 'create_account' %}"><button  type="button" class=" btn-lg btn btn-success">Register!</button>
+        </a>
+    </div>
+    <div class="col-xs-6">
+        <a href="{% url 'allJobs'%}"><button type="button" class="btn btn-primary btn-lg">View Available Jobs</button>
+        </a>
+    </div>
+</div>
+
 {% endblock %}

@@ -1,8 +1,9 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 import urllib.request
 import urllib.parse
+from urllib.error import HTTPError
 import json
-from .forms import LoginForm, CreateListingForm
+from .forms import LoginForm, CreateAccountForm, CreateListingForm
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.core.urlresolvers import reverse
 # Create your views here.
@@ -74,12 +75,25 @@ def create_listing(request):
 def create_listing_success(request):
 	return render(request, 'marketplace/create_listing_success.html')
 
+def logout(request):
+	authkey = request.COOKIES.get('auth')
+	if authkey is not None:
+		post_data = {'auth': authkey}
+		post_encoded = urllib.parse.urlencode(post_data).encode('utf-8')
+		req = urllib.request.Request('http://exp-api:8000/logout/', data=post_encoded, method='POST')
+		urllib.request.urlopen(req).read().decode('utf-8')
+	response = HttpResponseRedirect('/market/')
+	response.delete_cookie('auth')
+	return response
 
 def job_entry(request, id):
-	# make a GET request and parse the returned JSON                                                                                                                                                           # note, no timeouts, error handling or all the other things needed to do this for real
-	#req = urllib.request.Request('http://www.mocky.io/v2/57f001943d0000dc1e0dd7ca')
+	# make a GET request and parse the returned JSON
 	req = urllib.request.Request('http://exp-api:8000/jobs/' + id + '/')
-	resp_json = urllib.request.urlopen(req).read().decode('utf-8')
+	#redirect to all jobs view if job cannot be accessed/does not exist
+	try:
+		resp_json = urllib.request.urlopen(req).read().decode('utf-8')
+	except HTTPError:
+		return redirect('allJobs')
 	resp_dict = json.loads(resp_json)
 	context = {"job": resp_dict['result']}
 	return render(request, 'marketplace/job_detail.html', context=context)
@@ -96,3 +110,42 @@ def allJobs(request):
 	context = {'job_list' : resp['result']}
 	return render(request, 'marketplace/jobslist.html', context)
 
+def create_account(request):
+	if request.method == 'GET':
+		form = CreateAccountForm()
+		return render(request, 'marketplace/create_account.html', {'form': form})
+	form = CreateAccountForm(request.POST)
+	# check whether it's valid:
+	if not form.is_valid():
+	 	return render(request, 'marketplace/create_account.html', {'form': form})
+	username = form.cleaned_data['username']
+	email = form.cleaned_data['email']
+	password = form.cleaned_data['password']
+	first_name = form.cleaned_data['first_name']
+	last_name = form.cleaned_data['last_name']
+	phone_number = form.cleaned_data['phone_number']
+	skills = form.cleaned_data['skills']
+	post_data = {'username': username,
+				 'email': email,
+				 'password': password,
+				 'first_name':first_name,
+				 'last_name':last_name,
+				 'phone_number': phone_number,
+				 'skills': skills}
+	post_encoded = urllib.parse.urlencode(post_data).encode('utf-8')
+	req = urllib.request.Request('http://exp-api:8000/create_account/', data=post_encoded, method='POST')
+	resp_json = urllib.request.urlopen(req).read().decode('utf-8')
+	resp = json.loads(resp_json)
+	if not resp or not resp['ok']:
+	 	# couldn't create account, send them back to account page with error
+	 	return render(request, 'marketplace/create_account.html', {'form': form, 'error':True})
+	# created account, log-in, redirect to index
+	post_data = {'email': email, 'password': password}
+	post_encoded = urllib.parse.urlencode(post_data).encode('utf-8')
+	req = urllib.request.Request('http://exp-api:8000/login/', data=post_encoded, method='POST')
+	resp_json = urllib.request.urlopen(req).read().decode('utf-8')
+	resp = json.loads(resp_json)
+	authenticator = resp['result']['authenticator']
+	response = HttpResponseRedirect(reverse('index'))
+	response.set_cookie("auth", authenticator["authenticator"])
+	return response

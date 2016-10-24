@@ -3,10 +3,7 @@ import urllib.request
 import urllib.parse
 import json
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
 
-#this is probably a huge security issue.... needs to be fixed! #TODO
-@csrf_exempt
 def login(request):
     post_data = request.POST.dict()
     post_encoded = urllib.parse.urlencode(post_data).encode('utf-8')
@@ -14,6 +11,35 @@ def login(request):
     resp_json = urllib.request.urlopen(req).read().decode('utf-8')
     resp = json.loads(resp_json)
     return JsonResponse(resp)
+
+def logout(request):
+    post_data = request.POST.dict()
+    post_encoded = urllib.parse.urlencode(post_data).encode('utf-8')
+    req = urllib.request.Request('http://models-api:8000/api/v1/logout/', data=post_encoded, method='POST')
+    resp_json = urllib.request.urlopen(req).read().decode('utf-8')
+    resp = json.loads(resp_json)
+    return JsonResponse(resp)
+
+def create_account(request):
+    post_data = request.POST.dict()
+    post_encoded = urllib.parse.urlencode(post_data).encode('utf-8')
+    req = urllib.request.Request('http://models-api:8000/api/v1/users/create/', data=post_encoded, method='POST')
+    resp_json = urllib.request.urlopen(req).read().decode('utf-8')
+    resp = json.loads(resp_json)
+    return JsonResponse(resp)
+
+def getAuthUser(request):
+    post_data = request.POST.dict()
+    post_encoded = urllib.parse.urlencode(post_data).encode('utf-8')
+    req = urllib.request.Request('http://models-api:8000/api/v1/auth_user/', data=post_encoded, method='POST')
+    resp_json = urllib.request.urlopen(req).read().decode('utf-8')
+    resp = json.loads(resp_json)
+    if resp['ok']:
+        first_name = resp['result']['user']['first_name']
+        result = {'result': first_name, 'ok': True}
+    else:
+        result = {'result': 'Invalid authenticator', 'ok' : False}
+    return JsonResponse(result)
 
 def get_all_jobs(request):
     req = urllib.request.Request('http://models-api:8000/api/v1/jobs/')

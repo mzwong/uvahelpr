@@ -1,17 +1,17 @@
 from django.views.generic import View
-from django.http import JsonResponse
+from django.http import JsonResponse,HttpResponse
 from django.views.decorators.http import require_http_methods
 from django.core.exceptions import ObjectDoesNotExist
 from json import dumps
 from django.forms.models import model_to_dict
-
+from django.utils import timezone
 from .forms import  JobForm, MessageForm, HelprUserForm
 from .models import HelprUser, Job, Message, Authenticator
 
 from django.contrib.auth import hashers
 import os
 import hmac
-# import django settings file
+import datetime
 from django.conf import settings
 
 
@@ -40,18 +40,67 @@ def login(request):
 		resp["result"] = "Invalid email or password"
 	return JsonResponse(resp)
 
+def logout(request):
+	authkey = request.POST.get('auth')
+	resp = {}
+	userfound = True
+	try:
+		authenticator = Authenticator.objects.get(authenticator=authkey)
+		authenticator.delete()
+	except ObjectDoesNotExist:
+		userfound = False
+	if userfound:
+		resp["ok"] = True
+	else:
+		resp["ok"] = False
+	return JsonResponse(resp)
+
+def validate_auth_user(request):
+	authkey = request.POST.get('auth')
+	resp = {}
+	userfound = True
+	try:
+		authenticator = Authenticator.objects.get(authenticator=authkey)
+		if authenticator.time_created < timezone.now() - datetime.timedelta(days=1):
+			userfound = False
+	except ObjectDoesNotExist:
+		userfound = False
+
+	if userfound:
+		resp["ok"] = True
+		resp["result"] = {"user": model_to_dict(authenticator.auth_user)}
+	else:
+		resp["ok"] = False
+		resp["result"] = "Invalid authenticator"
+	return JsonResponse(resp)
+
 # Creating a user
 @require_http_methods(["POST"])
 def create_user(request):
 	result = {}
-	user_form = HelprUserForm(request.POST)
-	if user_form.is_valid() :
+	result_msg = None
+	try:
+		req_input = {
+		'username': request.POST['username'],
+		'email':request.POST['email'],
+		'password':hashers.make_password(request.POST['password']),
+		'first_name':request.POST['first_name'],
+		'last_name':request.POST['last_name'],
+		'phone_number':request.POST['phone_number'],
+		'skills': request.POST['skills']
+		}
+	except KeyError:
+		req_input = {}
+		result_msg = "Input did not contain all the required fields."
+	user_form = HelprUserForm(req_input)
+	if user_form.is_valid():
 		user = user_form.save()
 		result["ok"] = True
 		result["result"] = {"id": user.id}
 	else:
+		result_msg = "Invalid form data." if result_msg is None else result_msg
 		result["ok"] = False
-		result["result"] = "Invalid form data."
+		result["result"] = result_msg
 		result["submitted_data"] = dumps(request.POST)
 	return JsonResponse(result)
 

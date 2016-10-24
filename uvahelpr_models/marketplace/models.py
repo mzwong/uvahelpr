@@ -5,8 +5,8 @@ from django.dispatch import receiver
 
 
 class HelprUser(models.Model):
-	username = models.CharField(max_length=128)
-	email = models.CharField(max_length=128) #TODO: use a regex?
+	username = models.CharField(max_length=128, unique=True)
+	email = models.CharField(max_length=128, unique=True) #TODO: use a regex?
 	password = models.CharField(max_length=128)
 	first_name = models.CharField(max_length=128)
 	last_name = models.CharField(max_length=128)
@@ -41,4 +41,4 @@ class Message(models.Model):
 class Authenticator(models.Model):
 	authenticator = models.CharField(primary_key=True, max_length=255)
 	auth_user = models.ForeignKey(HelprUser, related_name='auth_user')
-	date_created = models.DateField(auto_now_add=True)
+	time_created = models.DateTimeField(auto_now_add=True)
