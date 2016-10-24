@@ -12,11 +12,11 @@ class HelprUserForm(ModelForm):
         fields = ['username', 'email', 'password', 'first_name', 'last_name', 'phone_number', 'skills']
 
 class JobForm(ModelForm):
-	class Meta:
-		model = Job
-		fields = ['skills_required','requester', 'servicer', 'compensation', 'event_time', 'location','time_required']
+    class Meta:
+        model = Job
+        fields = ['skills_required','requester', 'compensation', 'event_time', 'location','time_required']
 
 class MessageForm(ModelForm):
-	class Meta:
-		model = Message
-		fields = ['sender', 'recipient', 'text_body', 'time_sent']
+    class Meta:
+        model = Message
+        fields = ['sender', 'recipient', 'text_body', 'time_sent']

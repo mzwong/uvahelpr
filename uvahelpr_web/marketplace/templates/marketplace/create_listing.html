@@ -1,0 +1,40 @@
+{% extends "marketplace/base.html" %}
+{% block content %}
+<div class="page-header">
+  <h1>Post a new job</h1>
+</div>
+
+<form action="/market/create_listing/", method="post">
+    {% csrf_token %}
+    {% if form.errors or error%}
+        <h3>You need to login to post new jobs.<a href="{% url 'login' %}"> Login</a></h3>
+    {% endif %}
+
+    <div class="form-group">
+        <label for="{{ form.skills.id_for_label }}"></label>
+        <input type="skills" class="form-control" name="{{ form.skills.name }}" id="{{ form.skills.id_for_label }}" placeholder="Skills Required">
+    </div>
+    <div class="form-group">
+        <label for="{{ form.requester.id_for_label }}"></label>
+        <input type="requester" class="form-control" name="{{ form.requester.name }}" id="{{ form.requester.id_for_label }}" placeholder="Requester">
+    </div>
+    <div class="form-group">
+        <label for="{{ form.time.id_for_label }}"></label>
+        <input type="time" class="form-control" name="{{ form.time.name }}" id="{{ form.time.id_for_label }}" placeholder="Event Time">
+    </div>
+    <div class="form-group">
+        <label for="{{ form.comp.id_for_label }}"></label>
+        <input type="comp" class="form-control" name="{{ form.comp.name }}" id="{{ form.comp.id_for_label }}" placeholder="Compensation Offered">
+    </div>
+    <div class="form-group">
+        <label for="{{ form.location.id_for_label }}"></label>
+        <input type="location" class="form-control" name="{{ form.location.name }}" id="{{ form.location.id_for_label }}" placeholder="Location">
+    </div>
+    <div class="form-group">
+        <label for="{{ form.duration.id_for_label }}"></label>
+        <input type="duration" class="form-control" name="{{ form.duration.name }}" id="{{ form.duration.id_for_label }}" placeholder="Time Required">
+    </div>
+    <button type="submit" class="btn btn-default">Submit</button>
+</form>
+
+{% endblock %}

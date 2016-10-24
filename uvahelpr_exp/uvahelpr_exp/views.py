@@ -46,3 +46,11 @@ def job_summary(request, id):
     jsonresult = {'result': result, 'ok': True}
     return JsonResponse(jsonresult)
 
+@csrf_exempt
+def create_job(request):
+    post_data = request.Post.dict()
+    post_encoded = urllib.parse.urlencode(post_data).encode('utf-8')
+    req = urllib.request.Request('http://models-api:8000/api/v1/create_job/', data=post_encoded, method='POST')
+    resp_json = urllib.request.urlopen(req).read().decode('utf-8')
+    resp = json.loads(resp_json)
+    return JsonResponse(resp)
