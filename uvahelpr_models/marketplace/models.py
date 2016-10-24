@@ -5,8 +5,8 @@ from django.dispatch import receiver
 
 
 class HelprUser(models.Model):
-	username = models.CharField(max_length=128)
-	email = models.CharField(max_length=128) #TODO: use a regex?
+	username = models.CharField(max_length=128, unique=True)
+	email = models.CharField(max_length=128, unique=True) #TODO: use a regex?
 	password = models.CharField(max_length=128)
 	first_name = models.CharField(max_length=128)
 	last_name = models.CharField(max_length=128)
