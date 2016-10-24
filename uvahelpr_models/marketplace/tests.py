@@ -1,9 +1,10 @@
 from django.test import TestCase, RequestFactory
 import json
-from .views import UserRU, JobRU, MessageRU, get_all_jobs
+from .views import UserRU, JobRU, MessageRU, get_all_jobs, create_user
 from django.contrib.auth.models import AnonymousUser
 from .models import HelprUser, Job, Message
 from .forms import JobForm, MessageForm, HelprUserForm
+from urllib.parse import urlencode
 
 class GetUsers(TestCase):
     def setUp(self):
@@ -17,8 +18,8 @@ class GetUsers(TestCase):
             'phone_number':"7324438712",
             'skills':"martial arts"
         }
-        self.sample_user = HelprUserForm(user_args)
-        self.sample_user = self.sample_user.save()
+        self.sample_user_form = HelprUserForm(user_args)
+        self.sample_user = self.sample_user_form.save()
 
     def test_getting_user_fails_bad_id(self):
         request = self.factory.get('/api/v1/users/')
@@ -53,11 +54,11 @@ class GetJobs(TestCase):
             'phone_number':"7324438712",
             'skills':"martial arts"
         }
-        self.sample_user = HelprUserForm(user_args)
-        self.sample_user = self.sample_user.save()
+        self.sample_user_form = HelprUserForm(user_args)
+        self.sample_user = self.sample_user_form.save()
         job_args = {'skills_required': 'awesomeness',
-         'requester_id': self.sample_user.id,
-         'servicer_id': self.sample_user.id,
+         'requester': self.sample_user.id,
+         'servicer': self.sample_user.id,
          'compensation': 10000,
          'event_time': '2009-08-09 11:00:00',
          'location': 'Charlottesville',
@@ -109,11 +110,11 @@ class GetMessages(TestCase):
             'phone_number':"7324438712",
             'skills':"martial arts"
         }
-        self.sample_user = HelprUserForm(user_args)
-        self.sample_user = self.sample_user.save()
+        self.sample_user_form = HelprUserForm(user_args)
+        self.sample_user = self.sample_user_form.save()
         message_args = {'skills_required': 'awesomeness',
-         'recipient_id': self.sample_user.id,
-         'sender_id': self.sample_user.id,
+         'recipient': self.sample_user.id,
+         'sender': self.sample_user.id,
          'text_body': "Hello world!",
          'time_sent': '2009-08-09 11:00:00',
          }
@@ -142,3 +143,110 @@ class GetMessages(TestCase):
              user.delete()
          for message in Message.objects.all():
              message.delete()
+
+class CreateUser(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+        user_args = {
+            'username':"faker",
+            'password':"faker",
+            'email':"gg@virginia.edu" ,
+            'first_name':"sensei",
+            'last_name':"senpai",
+            'phone_number':"7324438712",
+            'skills':"martial arts"
+        }
+        self.sample_user_form = HelprUserForm(user_args)
+        self.sample_user = self.sample_user_form.save()
+
+    def test_adding_user_incomplete_info_fails(self):
+        user_data = {
+            "username": "new_user",
+            "password":"new_user",
+            "email": "blahblah@virginia.edu",
+        }
+        request = self.factory.post(path='/api/v1/users/create/', data=user_data)
+        response =  create_user(request)
+        result_dict = json.loads(response.content.decode())
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(result_dict["ok"]==False)
+        self.assertTrue(len(HelprUser.objects.all())==1)
+        self.assertTrue(result_dict["result"]=="Input did not contain all the required fields.")
+
+    def test_adding_user_invalid_phone_number_fails(self):
+        user_data = {
+            'username':"new_user",
+            'password':"new_user",
+            'email':"blahblah@virginia.edu" ,
+            'first_name':"sensei",
+            'last_name':"senpai",
+            'phone_number':"7324438712ABC",
+            'skills':"martial arts"
+        }
+        request = self.factory.post(path='/api/v1/users/create/', data=user_data)
+        response =  create_user(request)
+        result_dict = json.loads(response.content.decode())
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(result_dict["ok"]==False)
+        self.assertTrue(len(HelprUser.objects.all())==1)
+        self.assertTrue(result_dict["result"]=="Invalid form data.")
+        self.assertTrue(len(HelprUser.objects.filter(username='new_user'))==0)
+
+
+    def test_adding_user_duplicate_username_fails(self):
+        user_data = {
+            'username':"faker",
+            'password':"new_user",
+            'email':"blahblah@virginia.edu" ,
+            'first_name':"sensei",
+            'last_name':"senpai",
+            'phone_number':"7324438712",
+            'skills':"martial arts"
+        }
+        request = self.factory.post(path='/api/v1/users/create/', data=user_data)
+        response =  create_user(request)
+        result_dict = json.loads(response.content.decode())
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(result_dict["ok"]==False)
+        self.assertTrue(len(HelprUser.objects.all())==1)
+        self.assertTrue(len(HelprUser.objects.filter(username='new_user'))==0)
+
+    def test_adding_user_duplicate_email_fails(self):
+        user_data = {
+            'username':"new_user",
+            'password':"new_user",
+            'email':"gg@virginia.edu" ,
+            'first_name':"sensei",
+            'last_name':"senpai",
+            'phone_number':"7324438712",
+            'skills':"martial arts"
+        }
+        request = self.factory.post(path='/api/v1/users/create/', data=user_data)
+        response =  create_user(request)
+        result_dict = json.loads(response.content.decode())
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(result_dict["ok"]==False)
+        self.assertTrue(len(HelprUser.objects.all())==1)
+        self.assertTrue(len(HelprUser.objects.filter(username='new_user'))==0)
+
+    def test_adding_user_succeeds(self):
+        user_data = {
+            'username':"new_user",
+            'password':"new_user",
+            'email':"new_user@virginia.edu" ,
+            'first_name':"sensei",
+            'last_name':"senpai",
+            'phone_number':"7324438712",
+            'skills':"martial arts"
+        }
+        request = self.factory.post(path='/api/v1/users/create/', data=user_data)
+        response =  create_user(request)
+        result_dict = json.loads(response.content.decode())
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(result_dict["ok"]==True)
+        self.assertTrue(len(HelprUser.objects.all())==2)
+        self.assertTrue(len(HelprUser.objects.filter(email="new_user@virginia.edu"))==1)
+
+    def tearDown(self):
+         for user in HelprUser.objects.all():
+             user.delete()

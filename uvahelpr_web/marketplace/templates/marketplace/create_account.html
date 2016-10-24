@@ -1,0 +1,46 @@
+{% extends "marketplace/base.html" %}
+{% block content %}
+<div class="page-header">
+  <h1>Create a New Account</h1>
+</div>
+<form action="{% url 'create_account' %}", method="post">
+    {% csrf_token %}
+    {% if form.errors%}
+        <p>You have submitted invalid data.</p>
+        <p>{{form.errors}}</p>
+    {% endif %}
+
+  <div class="form-group">
+    <label for="{{ form.username.id_for_label }}">Username</label>
+    <input type="text" class="form-control" name="{{ form.username.name }}" id="{{ form.username.id_for_label }}"  placeholder="Enter your username">
+  </div>
+  <div class="form-group">
+    <label for="{{ form.email.id_for_label }}">Email Address</label>
+    <input type="email" class="form-control" name="{{ form.email.name }}" id="{{ form.email.id_for_label }}"  placeholder="Enter your email">
+  </div>
+  <div class="form-group">
+    <label for="{{ form.password.id_for_label }}">Password</label>
+    <input type="password" class="form-control" name="{{ form.password.name }}" id="{{ form.password.id_for_label }}"  placeholder="Enter a password">
+  </div>
+  <div class="form-group">
+    <label for="{{ form.first_name.id_for_label }}">First Name</label>
+    <input type="text" class="form-control" name="{{ form.first_name.name }}" id="{{ form.first_name.id_for_label }}"  placeholder="Enter your first name">
+  </div>
+  <div class="form-group">
+    <label for="{{ form.last_name.id_for_label }}">Last Name</label>
+    <input type="text" class="form-control" name="{{ form.last_name.name }}" id="{{ form.last_name.id_for_label }}"  placeholder="Enter your last name">
+  </div>
+  <div class="form-group">
+    <label for="{{ form.phone_number.id_for_label }}">Phone Number</label>
+    <input type="text" class="form-control" name="{{ form.phone_number.name }}" id="{{ form.phone_number.id_for_label }}"  placeholder="Enter your cell phone number">
+  </div>
+  <div class="form-group">
+    <label for="{{ form.skills.id_for_label }}">Skills</label>
+    <input type="text" class="form-control" name="{{ form.skills.name }}" id="{{ form.skills.id_for_label }}"  placeholder="Enter any skills that you have">
+  </div>
+
+  <button type="submit" class="btn btn-default">Submit</button>
+
+</form>
+
+{% endblock %}
