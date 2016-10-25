@@ -18,9 +18,8 @@ from django.conf import settings
 ############ VIEWS ####################
 
 ######### Function-based #############
-#logging in a user
 @require_http_methods(["POST"])
-def login(request):
+def checkPassword(request):
 	emailaddress = request.POST.get('email')
 	password = request.POST.get('password')
 	userfound = True
@@ -31,16 +30,28 @@ def login(request):
 	resp = {}
 	if (userfound and hashers.check_password(password, user.password)):
 		resp['ok'] = True
-		authenticator_hash = hmac.new(key=settings.SECRET_KEY.encode('utf-8'), msg=os.urandom(32),digestmod='sha256').hexdigest()
-		authenticator = Authenticator.objects.create(auth_user=user, authenticator=authenticator_hash)
-		authenticator.save()
-		resp["result"] = {"authenticator" : model_to_dict(authenticator)}
+		resp['result'] = model_to_dict(user)
 	else:
-		resp["ok"] = False
-		resp["result"] = "Invalid email or password"
+		resp['ok'] = False
+		resp['result'] = "Invalid email or password"
 	return JsonResponse(resp)
 
-def logout(request):
+def createAuthenticator(request):
+	user_id = request.POST.get('user_id')
+	user = HelprUser.objects.get(pk=user_id)
+	resp = {}
+	authenticator_hash = hmac.new(key=settings.SECRET_KEY.encode('utf-8'), msg=os.urandom(32), digestmod='sha256').hexdigest()
+	authenticator = Authenticator.objects.create(auth_user=user, authenticator=authenticator_hash)
+	try:
+		authenticator.save()
+		resp['ok'] = True
+		resp["result"] = {"authenticator": model_to_dict(authenticator)}
+	except:
+		resp['ok'] = False
+		resp['result'] = "Failed to create authenticator"
+	return JsonResponse(resp)
+
+def delete_authenticator(request):
 	authkey = request.POST.get('auth')
 	resp = {}
 	userfound = True
