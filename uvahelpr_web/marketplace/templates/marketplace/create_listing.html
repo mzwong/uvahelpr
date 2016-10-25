@@ -6,33 +6,37 @@
 
 <form action="/market/create_listing/", method="post">
     {% csrf_token %}
-    {% if form.errors or error%}
-        <h3>You need to login to post new jobs.<a href="{% url 'login' %}"> Login</a></h3>
+    {% if form.errors or error %}
+        <p>You have submitted invalid data.</p>
+        <p>{{form.errors}}</p>
     {% endif %}
-
     <div class="form-group">
-        <label for="{{ form.skills.id_for_label }}"></label>
-        <input type="skills" class="form-control" name="{{ form.skills.name }}" id="{{ form.skills.id_for_label }}" placeholder="Skills Required">
+        <label for="{{ form.title.id_for_label }}">Title</label>
+        <input type="title" class="form-control" name="{{ form.title.name }}" id="{{ form.title.id_for_label }}" placeholder="Title">
     </div>
     <div class="form-group">
-        <label for="{{ form.requester.id_for_label }}"></label>
-        <input type="requester" class="form-control" name="{{ form.requester.name }}" id="{{ form.requester.id_for_label }}" placeholder="Requester">
+        <label for="{{ form.description.id_for_label }}">Description</label>
+        <input type="description" class="form-control" name="{{ form.description.name }}" id="{{ form.description.id_for_label }}" placeholder="Description">
     </div>
     <div class="form-group">
-        <label for="{{ form.time.id_for_label }}"></label>
-        <input type="time" class="form-control" name="{{ form.time.name }}" id="{{ form.time.id_for_label }}" placeholder="Event Time">
+        <label for="{{ form.skills.id_for_label }}">Skills Required</label>
+        <input type="skills_required" class="form-control" name="{{ form.skills_required.name }}" id="{{ form.skills_required.id_for_label }}" placeholder="Skills Required">
     </div>
     <div class="form-group">
-        <label for="{{ form.comp.id_for_label }}"></label>
-        <input type="comp" class="form-control" name="{{ form.comp.name }}" id="{{ form.comp.id_for_label }}" placeholder="Compensation Offered">
+        <label for="{{ form.event_time.id_for_label }}">Event Time</label>
+        <input type="event_time" class="form-control" name="{{ form.event_time.name }}" id="{{ form.event_time.id_for_label }}" placeholder="Event Time">
     </div>
     <div class="form-group">
-        <label for="{{ form.location.id_for_label }}"></label>
+        <label for="{{ form.compensation.id_for_label }}">Compensation</label>
+        <input type="compensation" class="form-control" name="{{ form.compensation.name }}" id="{{ form.comp.id_for_label }}" placeholder="Compensation">
+    </div>
+    <div class="form-group">
+        <label for="{{ form.location.id_for_label }}">Location</label>
         <input type="location" class="form-control" name="{{ form.location.name }}" id="{{ form.location.id_for_label }}" placeholder="Location">
     </div>
     <div class="form-group">
-        <label for="{{ form.duration.id_for_label }}"></label>
-        <input type="duration" class="form-control" name="{{ form.duration.name }}" id="{{ form.duration.id_for_label }}" placeholder="Time Required">
+        <label for="{{ form.duration.id_for_label }}">Time Required</label>
+        <input type="time_required" class="form-control" name="{{ form.time_required.name }}" id="{{ form.time_required.id_for_label }}" placeholder="Time Required">
     </div>
     <button type="submit" class="btn btn-default">Submit</button>
 </form>

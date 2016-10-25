@@ -14,7 +14,7 @@ class HelprUserForm(ModelForm):
 class JobForm(ModelForm):
     class Meta:
         model = Job
-        fields = ['skills_required','requester', 'compensation', 'event_time', 'location','time_required']
+        fields = ['title', 'description', 'skills_required', 'compensation', 'event_time', 'location', 'time_required', 'requester']
 
 class MessageForm(ModelForm):
     class Meta:

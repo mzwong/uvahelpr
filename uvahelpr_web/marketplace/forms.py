@@ -1,16 +1,18 @@
 from django import forms
+from django.contrib.admin import widgets
 
 class LoginForm(forms.Form):
     email = forms.EmailField(label='Email')
     password = forms.CharField(max_length=32, widget=forms.PasswordInput)
 
 class CreateListingForm(forms.Form):
-    skills = forms.CharField(label='Skills Required', max_length=64)
-    requester = forms.CharField(label='Requester', max_length=140)
-    time = forms.CharField(label='Time', max_length=20)
-    compensation = forms.CharField(label='Compensation Offered', max_length=20)
+    title = forms.CharField(label='Title', max_length=64)
+    description = forms.CharField(label='Description', max_length=64)
+    skills_required = forms.CharField(label='Skills Required', max_length=64)
+    compensation = forms.DecimalField(label='Compensation')
+    event_time = forms.DateTimeField()
     location = forms.CharField(label='Location', max_length=50)
-    duration = forms.CharField(label='Duration', max_length=20)
+    time_required = forms.DecimalField(label='Time Required')
 
 class CreateAccountForm(forms.Form):
     username = forms.CharField(label='Username', max_length=32)

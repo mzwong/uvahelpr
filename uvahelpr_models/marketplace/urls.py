@@ -15,4 +15,5 @@ urlpatterns = [
     url(r'^v1/login/$', views.login, name="login"),
     url(r'^v1/logout/$', views.logout, name="logout"),
     url(r'^v1/auth_user/$', views.validate_auth_user, name="auth_user"),
+	url(r'^v1/create_job/$', views.create_job, name="create_job"),
 ]

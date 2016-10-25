@@ -3,11 +3,16 @@
 <div class="page-header">
   <h1>User Login</h1>
 </div>
-<form action="/market/login/", method="post">
+    {% if next %}
+        <form action="/market/login/?next={{next}}" method="post" >
+    {%else%}
+        <form action="/market/login/" method="post" >
+    {% endif %}
     {% csrf_token %}
     {% if error or form.errors%}
         <p>Your email and password didn't match. Please try again.</p>
     {% endif %}
+    <!--<input type="hidden" name="next" value="{{next}}" />-->
   <div class="form-group">
     <label for="{{ form.email.id_for_label }}">Email Address</label>
     <input type="email" class="form-control" name="{{ form.email.name }}" id="{{ form.email.id_for_label }}"  placeholder="Email">

@@ -14,7 +14,7 @@ def login(request):
 	if request.method == 'GET':
 		form = LoginForm()
 		next = request.GET.get('next') or reverse('index')
-		return render(request, 'marketplace/login.html', {'form': form})
+		return render(request, 'marketplace/login.html', {'form': form, 'context': next})
 	form = LoginForm(request.POST)
 	# check whether it's valid:
 	if not form.is_valid():
@@ -37,39 +37,43 @@ def login(request):
 	return response
 
 def create_listing(request):
-	form = CreateListingForm(request.POST)
-	if request.method == 'GET':
-		return render(request, "marketplace/create_listing.html", {'form': form})
-	auth = request.COOKIES.get('auth');
+	auth = request.COOKIES.get('auth')
 	if not auth:
 		#Handle user not logged in while trying to create a listing
 		return HttpResponseRedirect(reverse("login") + "?next=" + reverse("create_listing"))
+	if request.method == 'GET':
+		form = CreateListingForm()
+		return render(request, "marketplace/create_listing.html", {'form': form})
+	form = CreateListingForm(request.POST)
 	if not form.is_valid():
-		return render(request, 'marketplace/create_listing.html', {'form': form})
-	skills = form.cleaned_data['skills']
-	requester = form.cleaned_data['requester']
+		return render(request, 'marketplace/create_listing.html', {'form': form, 'error': True})
+	title = form.cleaned_data['title']
+	description = form.cleaned_data['description']
+	skills_required = form.cleaned_data['skills_required']
 	compensation = form.cleaned_data['compensation']
-	time = form.cleaned_data['time']
+	event_time = form.data['event_time']
 	location = form.cleaned_data['location']
-	duration = form.cleaned_data['duration']
-	post_data = {'skills': skills,
-				 'requester': requester,
+	time_required = form.cleaned_data['time_required']
+	post_data = {'title': title,
+				 'description': description,
+				 'skills_required': skills_required,
 				 'compensation': compensation,
-				 'time': time,
+				 'event_time': event_time,
 				 'location': location,
-				 'duration': duration}
+				 'time_required': time_required,
+				 'auth': auth}
 	post_encoded = urllib.parse.urlencode(post_data).encode('utf-8')
 	req = urllib.request.Request('http://exp-api:8000/create_job/', data=post_encoded, method='POST')
 	resp_json = urllib.request.urlopen(req).read().decode('utf-8')
 	resp = json.loads(resp_json)
-	#if resp and not resp['ok']:
-		# exp service reports invalid authenticator -- treat like user not logged in
-	#	return HttpResponseRedirect(reverse("login") + "?next=" + reverse("create_listing"))
-	if not resp or not resp['ok']:
-		# couldn't create lsiting, send them back to create listing page with error
-		return render(request, 'marketplace/create_listing.html', {'form': form, 'error': True})
+	if resp and not resp['ok']:
+		if resp['result'] == 'Invalid authenticator':
+			# exp service reports invalid authenticator -- treat like user not logged in
+			return HttpResponseRedirect(reverse("login") + "?next=" + reverse("create_listing"))
+		else:
+			return render(request, 'marketplace/create_listing.html', {'form': form, 'error': True})
 	# successfully created listing
-	authenticator = resp['result']['authenticator']
+	#authenticator = resp['result']['authenticator']
 	return render(request, 'marketplace/create_listing_success.html')
 
 def create_listing_success(request):
@@ -117,7 +121,7 @@ def create_account(request):
 	form = CreateAccountForm(request.POST)
 	# check whether it's valid:
 	if not form.is_valid():
-	 	return render(request, 'marketplace/create_account.html', {'form': form})
+		return render(request, 'marketplace/create_account.html', {'form': form})
 	username = form.cleaned_data['username']
 	email = form.cleaned_data['email']
 	password = form.cleaned_data['password']
@@ -136,9 +140,9 @@ def create_account(request):
 	req = urllib.request.Request('http://exp-api:8000/create_account/', data=post_encoded, method='POST')
 	resp_json = urllib.request.urlopen(req).read().decode('utf-8')
 	resp = json.loads(resp_json)
-	if not resp or not resp['ok']:
-	 	# couldn't create account, send them back to account page with error
-	 	return render(request, 'marketplace/create_account.html', {'form': form, 'error':True})
+	if resp and not resp['ok']:
+		# couldn't create account, send them back to account page with error
+		return render(request, 'marketplace/create_account.html', {'form': form, 'error': True})
 	# created account, log-in, redirect to index
 	post_data = {'email': email, 'password': password}
 	post_encoded = urllib.parse.urlencode(post_data).encode('utf-8')
