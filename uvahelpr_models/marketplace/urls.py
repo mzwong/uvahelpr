@@ -15,5 +15,5 @@ urlpatterns = [
     url(r'^v1/check_password/$', views.checkPassword, name="check_password"),
     url(r'^v1/create_authenticator/$', views.createAuthenticator, name="create_authenticator"),
     url(r'^v1/delete_authenticator/$', views.delete_authenticator, name="delete_authenticator"),
-    url(r'^v1/auth_user/$', views.validate_auth_user, name="auth_user"),
+    url(r'^v1/auth_user/$', views.get_auth_user, name="auth_user"),
 ]

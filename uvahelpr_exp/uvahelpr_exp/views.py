@@ -2,6 +2,8 @@ from django.http import HttpResponse
 import urllib.request
 import urllib.parse
 import json
+import datetime
+from django.utils import timezone
 from django.http import JsonResponse
 
 #Helper functions for making requests to the models layer
@@ -41,7 +43,14 @@ def create_account(request):
 def getAuthUser(request):
     post_data = request.POST.dict()
     resp = requestHelperPost('auth_user/', post_data)
+    authenticator_valid = True
     if resp['ok']:
+        authenticator = resp['result']['auth']
+        if authenticator['time_created'] < (timezone.now() - datetime.timedelta(days=1)).isoformat():
+            authenticator_valid = False
+    else:
+        authenticator_valid = False
+    if authenticator_valid:
         first_name = resp['result']['user']['first_name']
         result = {'result': first_name, 'ok': True}
     else:

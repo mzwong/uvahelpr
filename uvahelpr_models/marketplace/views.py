@@ -4,14 +4,12 @@ from django.views.decorators.http import require_http_methods
 from django.core.exceptions import ObjectDoesNotExist
 from json import dumps
 from django.forms.models import model_to_dict
-from django.utils import timezone
 from .forms import  JobForm, MessageForm, HelprUserForm
 from .models import HelprUser, Job, Message, Authenticator
 
 from django.contrib.auth import hashers
 import os
 import hmac
-import datetime
 from django.conf import settings
 
 
@@ -66,20 +64,20 @@ def delete_authenticator(request):
 		resp["ok"] = False
 	return JsonResponse(resp)
 
-def validate_auth_user(request):
+def get_auth_user(request):
 	authkey = request.POST.get('auth')
 	resp = {}
 	userfound = True
 	try:
 		authenticator = Authenticator.objects.get(authenticator=authkey)
-		if authenticator.time_created < timezone.now() - datetime.timedelta(days=1):
-			userfound = False
 	except ObjectDoesNotExist:
 		userfound = False
 
 	if userfound:
 		resp["ok"] = True
-		resp["result"] = {"user": model_to_dict(authenticator.auth_user)}
+		authdict = model_to_dict(authenticator)
+		authdict['time_created'] = authenticator.time_created
+		resp["result"] = {"user": model_to_dict(authenticator.auth_user), "auth": authdict}
 	else:
 		resp["ok"] = False
 		resp["result"] = "Invalid authenticator"
