@@ -143,7 +143,8 @@ def create_job(request):
 	else:
 		result["ok"] = False
 		result["result"] = "Invalid form data."
-		result["submitted_data"] = dumps(request.POST)
+		result["submitted_data"] = request.POST
+		result["errors"] = job_form.errors
 	return JsonResponse(result)
 
 #Deleting a job

@@ -38,7 +38,7 @@ def getAuthUser(request):
         first_name = resp['result']['user']['first_name']
         result = {'result': first_name, 'ok': True}
     else:
-        result = {'result': 'Invalid authenticator', 'ok' : False}
+        result = {'result': 'Invalid authenticator', 'ok': False}
     return JsonResponse(result)
 
 def get_all_jobs(request):
@@ -72,3 +72,21 @@ def job_summary(request, id):
     jsonresult = {'result': result, 'ok': True}
     return JsonResponse(jsonresult)
 
+def create_job(request):
+    post_data = request.POST.dict()
+    auth = post_data.get('auth')
+    post_data.pop('auth')
+    auth_dict = {'auth': auth}
+    auth_encoded = urllib.parse.urlencode(auth_dict).encode('utf-8')
+    req2 = urllib.request.Request('http://models-api:8000/api/v1/auth_user/', data=auth_encoded, method='POST')
+    resp_json2 = urllib.request.urlopen(req2).read().decode('utf-8')
+    user = json.loads(resp_json2)
+    if user['ok']:
+        post_data['requester'] = user['result']['user']['id']
+        post_encoded = urllib.parse.urlencode(post_data).encode('utf-8')
+        req = urllib.request.Request('http://models-api:8000/api/v1/create_job/', data=post_encoded, method='POST')
+        resp_json = urllib.request.urlopen(req).read().decode('utf-8')
+        resp = json.loads(resp_json)
+    else:
+        resp = {'result': 'Invalid authenticator', 'ok': False}
+    return JsonResponse(resp)
