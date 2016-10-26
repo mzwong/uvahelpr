@@ -73,7 +73,6 @@ def create_listing(request):
 		else:
 			return render(request, 'marketplace/create_listing.html', {'form': form, 'error': True})
 	# successfully created listing
-	#authenticator = resp['result']['authenticator']
 	return render(request, 'marketplace/create_listing_success.html')
 
 def create_listing_success(request):
@@ -140,7 +139,7 @@ def create_account(request):
 	req = urllib.request.Request('http://exp-api:8000/create_account/', data=post_encoded, method='POST')
 	resp_json = urllib.request.urlopen(req).read().decode('utf-8')
 	resp = json.loads(resp_json)
-	if resp and not resp['ok']:
+	if not resp or not resp['ok']:
 		# couldn't create account, send them back to account page with error
 		return render(request, 'marketplace/create_account.html', {'form': form, 'error': True})
 	# created account, log-in, redirect to index
