@@ -23,4 +23,5 @@ urlpatterns = [
     url(r'^jobs/$', views.get_all_jobs, name='get_all_jobs'),
     url(r'^jobs/(?P<id>[0-9]+)/$', views.job_summary, name='get_job'),
     url(r'^logout/$', views.logout, name='logout'),
+	url(r'^create_job/$', views.create_job, name='create_job'),
 ]

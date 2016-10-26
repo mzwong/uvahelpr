@@ -24,7 +24,7 @@ class HelprUser(models.Model):
 class Job(models.Model):
 	skills_required = models.CharField(max_length=1000) # store array as a JSON string
 	requester = models.ForeignKey(HelprUser, related_name='requester')
-	servicer = models.ForeignKey(HelprUser, related_name='servicer')
+	servicer = models.ForeignKey(HelprUser, related_name='servicer', blank=True, null=True)
 	compensation = models.DecimalField(decimal_places=2, max_digits=10)
 	event_time = models.DateTimeField()
 	location = models.CharField(max_length=200) # TODO: Change to Address class in the future

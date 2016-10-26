@@ -43,7 +43,7 @@ class GetUsers(TestCase):
          for user in HelprUser.objects.all():
              user.delete()
 
-class GetJobs(TestCase):
+class TestJobs(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         user_args = {
@@ -63,7 +63,10 @@ class GetJobs(TestCase):
          'compensation': 10000,
          'event_time': '2009-08-09 11:00:00',
          'location': 'Charlottesville',
-         'time_required': 30.00}
+         'time_required': 30.00,
+         'title': 'Help needed',
+         'description': 'I really really really need help.'
+        }
         sample_job = JobForm(job_args)
         self.sample_job = sample_job.save()
 
@@ -92,6 +95,66 @@ class GetJobs(TestCase):
         resp_dict = json.loads(response.content.decode())
         self.assertTrue(resp_dict["ok"]==True)
         self.assertTrue(len(resp_dict["result"])!=0)
+
+    def test_create_job_missing_fields(self):
+        job_data = {
+            'skills_required': 'being smart',
+            'requester': self.sample_user.id,
+            'compensation': 100,
+            'event_time': '2009-08-09 11:00:00',
+            'location': 'Charlottesville',
+            'time_required': 70.00,
+            'title': 'Tutor Needed',
+            'description': 'Im so lost.'
+        }
+        request = self.factory.post(path='/api/v1/jobs/create/', data=job_data)
+        response = create_job(request)
+        result_dict = json.loads(response.content.decode())
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(result_dict["ok"])
+        self.assertTrue(len(Job.objects.all()) == 2)
+        self.assertEqual(result_dict["result"]['id'], 2)
+
+    def test_create_job_success(self):
+        job_data = {
+            'skills_required': 'being smart',
+            'requester': self.sample_user.id,
+            'compensation': 100,
+            'time_required': 70.00,
+            'title': 'Tutor Needed',
+            'description': 'Im so lost.'
+        }
+        request = self.factory.post(path='/api/v1/jobs/create/', data=job_data)
+        response = create_job(request)
+        result_dict = json.loads(response.content.decode())
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(result_dict["ok"])
+        self.assertTrue(len(Job.objects.all()) == 1)
+        self.assertEqual(result_dict["result"], "Invalid form data.")
+
+    def test_delete_job_invalid(self):
+        job_data = {
+            'id': 999
+        }
+        request = self.factory.post(path='/api/v1/jobs/delete/', data=job_data)
+        response = delete_job(request)
+        result_dict = json.loads(response.content.decode())
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(result_dict["ok"])
+        self.assertTrue(len(Job.objects.all()) == 1)
+        self.assertEqual(result_dict["result"], "Job does not exist.")
+
+    def test_delete_job_success(self):
+        job_data = {
+            'id': self.sample_job.id
+        }
+        request = self.factory.post(path='/api/v1/jobs/delete/', data=job_data)
+        response = delete_job(request)
+        result_dict = json.loads(response.content.decode())
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(result_dict["ok"])
+        self.assertTrue(len(Job.objects.all()) == 0)
+        self.assertEqual(result_dict["result"], "Job succesfully deleted.")
 
     def tearDown(self):
          for user in HelprUser.objects.all():
