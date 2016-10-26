@@ -12,9 +12,9 @@ def index(request):
 
 def login(request):
 	if request.method == 'GET':
-		form = LoginForm()
 		next = request.GET.get('next') or reverse('index')
-		return render(request, 'marketplace/login.html', {'form': form, 'context': next})
+		form = LoginForm()
+		return render(request, 'marketplace/login.html', {'form': form, 'next': next})
 	form = LoginForm(request.POST)
 	# check whether it's valid:
 	if not form.is_valid():

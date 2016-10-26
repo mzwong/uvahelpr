@@ -4,6 +4,7 @@ from django.contrib.admin import widgets
 class LoginForm(forms.Form):
     email = forms.EmailField(label='Email')
     password = forms.CharField(max_length=32, widget=forms.PasswordInput)
+    next = forms.CharField(max_length=100)
 
 class CreateListingForm(forms.Form):
     title = forms.CharField(label='Title', max_length=64)
