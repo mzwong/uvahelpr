@@ -8,7 +8,7 @@ class LoginForm(forms.Form):
 
 class CreateListingForm(forms.Form):
     title = forms.CharField(label='Title', max_length=64)
-    description = forms.TextField(label='Description', max_length=300)
+    description = forms.CharField(label='Description', max_length=300)
     skills_required = forms.CharField(label='Skills Required', max_length=64)
     compensation = forms.DecimalField(label='Compensation')
     event_time = forms.DateTimeField()

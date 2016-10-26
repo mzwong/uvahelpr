@@ -2,39 +2,55 @@ from django.http import HttpResponse
 import urllib.request
 import urllib.parse
 import json
+import datetime
+from django.utils import timezone
 from django.http import JsonResponse
+
+#Helper functions for making requests to the models layer
+###########################################
+def requestHelperPost(url, postdata):
+    post_encoded = urllib.parse.urlencode(postdata).encode('utf-8')
+    req = urllib.request.Request('http://models-api:8000/api/v1/' + url, data=post_encoded, method='POST')
+    resp_json = urllib.request.urlopen(req).read().decode('utf-8')
+    return json.loads(resp_json)
+
+def requestHelperGet(url):
+    req = urllib.request.Request('http://models-api:8000/api/v1/' + url)
+    resp_json = urllib.request.urlopen(req).read().decode('utf-8')
+    return json.loads(resp_json)
+############################################
 
 def login(request):
     post_data = request.POST.dict()
-    post_encoded = urllib.parse.urlencode(post_data).encode('utf-8')
-    req = urllib.request.Request('http://models-api:8000/api/v1/login/', data=post_encoded, method='POST')
-    resp_json = urllib.request.urlopen(req).read().decode('utf-8')
-    resp = json.loads(resp_json)
+    user_info = requestHelperPost('check_password/', post_data)
+    if user_info['ok']:
+        post_data2 = {'user_id': user_info['result']['id']}
+        resp = requestHelperPost('create_authenticator/', post_data2)
+    else:
+        resp = user_info
     return JsonResponse(resp)
 
 def logout(request):
     post_data = request.POST.dict()
-    post_encoded = urllib.parse.urlencode(post_data).encode('utf-8')
-    req = urllib.request.Request('http://models-api:8000/api/v1/logout/', data=post_encoded, method='POST')
-    resp_json = urllib.request.urlopen(req).read().decode('utf-8')
-    resp = json.loads(resp_json)
+    resp = requestHelperPost('delete_authenticator/', post_data)
     return JsonResponse(resp)
 
 def create_account(request):
     post_data = request.POST.dict()
-    post_encoded = urllib.parse.urlencode(post_data).encode('utf-8')
-    req = urllib.request.Request('http://models-api:8000/api/v1/users/create/', data=post_encoded, method='POST')
-    resp_json = urllib.request.urlopen(req).read().decode('utf-8')
-    resp = json.loads(resp_json)
+    resp = requestHelperPost('users/create/', post_data)
     return JsonResponse(resp)
 
 def getAuthUser(request):
     post_data = request.POST.dict()
-    post_encoded = urllib.parse.urlencode(post_data).encode('utf-8')
-    req = urllib.request.Request('http://models-api:8000/api/v1/auth_user/', data=post_encoded, method='POST')
-    resp_json = urllib.request.urlopen(req).read().decode('utf-8')
-    resp = json.loads(resp_json)
+    resp = requestHelperPost('auth_user/', post_data)
+    authenticator_valid = True
     if resp['ok']:
+        authenticator = resp['result']['auth']
+        if authenticator['time_created'] < (timezone.now() - datetime.timedelta(days=1)).isoformat():
+            authenticator_valid = False
+    else:
+        authenticator_valid = False
+    if authenticator_valid:
         first_name = resp['result']['user']['first_name']
         result = {'result': first_name, 'ok': True}
     else:
@@ -42,9 +58,7 @@ def getAuthUser(request):
     return JsonResponse(result)
 
 def get_all_jobs(request):
-    req = urllib.request.Request('http://models-api:8000/api/v1/jobs/')
-    resp_json = urllib.request.urlopen(req).read().decode('utf-8')
-    resp_dict = json.loads(resp_json)
+    resp_dict = requestHelperGet('jobs/')
     jobarray = []
     for job in resp_dict['result']:
         newjob = {'id': job['id'], 'title': job['title'], 'description': job['description']}
@@ -53,15 +67,11 @@ def get_all_jobs(request):
     return JsonResponse(result)
 
 def job_summary(request, id):
-    req = urllib.request.Request('http://models-api:8000/api/v1/jobs/' + id + '/')
-    resp_json = urllib.request.urlopen(req).read().decode('utf-8')
-    resp_dict = json.loads(resp_json)
+    resp_dict = requestHelperGet('jobs/' + id + '/')
     job = resp_dict['result']
     user_id = str(job['requester'])
 
-    req_user = urllib.request.Request('http://models-api:8000/api/v1/users/' + user_id + '/')
-    user_json = urllib.request.urlopen(req_user).read().decode('utf-8')
-    user_dict = json.loads(user_json)
+    user_dict = requestHelperGet('users/' + user_id + '/')
     user_info = user_dict['result']
     firstname = user_info["first_name"]
     lastname = user_info['last_name']

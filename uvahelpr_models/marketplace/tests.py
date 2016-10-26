@@ -2,7 +2,8 @@ from django.test import TestCase, RequestFactory
 import json
 from .views import *
 from django.contrib.auth.models import AnonymousUser
-from .models import HelprUser, Job, Message
+from django.contrib.auth import hashers
+from .models import HelprUser, Job, Message, Authenticator
 from .forms import JobForm, MessageForm, HelprUserForm
 from urllib.parse import urlencode
 
@@ -313,3 +314,108 @@ class CreateUser(TestCase):
     def tearDown(self):
          for user in HelprUser.objects.all():
              user.delete()
+
+class CheckPassword(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+        user_args = {
+            'username': "faker",
+            'password': hashers.make_password("faker"),
+            'email': "gg@virginia.edu",
+            'first_name': "sensei",
+            'last_name': "senpai",
+            'phone_number': "7324438712",
+            'skills': "martial arts"
+        }
+        self.sample_user_form = HelprUserForm(user_args)
+        self.sample_user = self.sample_user_form.save()
+
+    def test_invalid_email_fail(self):
+        pass_data = {
+            'email': "ggg@virginia.edu",
+            'password': "faker"
+        }
+        request = self.factory.post(path='/api/v1/check_password/', data=pass_data)
+        response = checkPassword(request)
+        result_dict = json.loads(response.content.decode())
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(result_dict["ok"])
+        self.assertEqual(result_dict["result"], "Invalid email or password")
+
+    def test_password_success(self):
+        pass_data = {
+            'email': "gg@virginia.edu",
+            'password': "faker"
+        }
+        request = self.factory.post(path='/api/v1/check_password/', data=pass_data)
+        response = checkPassword(request)
+        result_dict = json.loads(response.content.decode())
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(result_dict["ok"])
+        user_dict = result_dict["result"]
+        self.assertEqual(user_dict["username"], "faker")
+        self.assertEqual(user_dict["email"], "gg@virginia.edu")
+
+    def tearDown(self):
+        for user in HelprUser.objects.all():
+            user.delete()
+
+
+class TestAuthenticator(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+        user_args = {
+            'username': "faker",
+            'password': hashers.make_password("faker"),
+            'email': "gg@virginia.edu",
+            'first_name': "sensei",
+            'last_name': "senpai",
+            'phone_number': "7324438712",
+            'skills': "martial arts"
+        }
+        self.sample_user_form = HelprUserForm(user_args)
+        self.sample_user = self.sample_user_form.save()
+        user = HelprUser.objects.get(username="faker")
+        self.user_id = user.pk
+        authenticator_hash = "hash123"
+        authenticator = Authenticator.objects.create(auth_user=user, authenticator=authenticator_hash)
+        authenticator.save()
+
+    def test_add_authenticator(self):
+        auth_data = {
+            'user_id': self.user_id
+        }
+        request = self.factory.post(path='/api/v1/create_authenticator/', data=auth_data)
+        response = createAuthenticator(request)
+        result_dict = json.loads(response.content.decode())
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(result_dict["ok"] == True)
+        self.assertEqual(len(Authenticator.objects.all()), 2)
+        self.assertEqual(len(Authenticator.objects.filter(auth_user=self.user_id)), 2)
+        self.assertEqual(result_dict['result']['authenticator']['auth_user'], self.user_id)
+
+    def test_delete_nonexistent_authenticator(self):
+        auth_data = {
+            'auth': "hash1234"
+        }
+        request = self.factory.post(path='/api/v1/delete_authenticator/', data=auth_data)
+        response = delete_authenticator(request)
+        result_dict = json.loads(response.content.decode())
+        self.assertFalse(result_dict['ok'])
+        self.assertEqual(len(Authenticator.objects.all()),1)
+
+    def test_delete_authenticator_succes(self):
+        auth_data = {
+            'auth': "hash123"
+        }
+        request = self.factory.post(path='/api/v1/delete_authenticator/', data=auth_data)
+        response = delete_authenticator(request)
+        result_dict = json.loads(response.content.decode())
+        self.assertTrue(result_dict['ok'])
+        self.assertEqual(len(Authenticator.objects.all()), 0)
+
+    def tearDown(self):
+        for user in HelprUser.objects.all():
+            user.delete()
+        for authenticator in Authenticator.objects.all():
+            authenticator.delete()

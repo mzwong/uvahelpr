@@ -4,23 +4,20 @@ from django.views.decorators.http import require_http_methods
 from django.core.exceptions import ObjectDoesNotExist
 from json import dumps
 from django.forms.models import model_to_dict
-from django.utils import timezone
 from .forms import  JobForm, MessageForm, HelprUserForm
 from .models import HelprUser, Job, Message, Authenticator
 
 from django.contrib.auth import hashers
 import os
 import hmac
-import datetime
 from django.conf import settings
 
 
 ############ VIEWS ####################
 
 ######### Function-based #############
-#logging in a user
 @require_http_methods(["POST"])
-def login(request):
+def checkPassword(request):
 	emailaddress = request.POST.get('email')
 	password = request.POST.get('password')
 	userfound = True
@@ -31,16 +28,28 @@ def login(request):
 	resp = {}
 	if (userfound and hashers.check_password(password, user.password)):
 		resp['ok'] = True
-		authenticator_hash = hmac.new(key=settings.SECRET_KEY.encode('utf-8'), msg=os.urandom(32),digestmod='sha256').hexdigest()
-		authenticator = Authenticator.objects.create(auth_user=user, authenticator=authenticator_hash)
-		authenticator.save()
-		resp["result"] = {"authenticator" : model_to_dict(authenticator)}
+		resp['result'] = model_to_dict(user)
 	else:
-		resp["ok"] = False
-		resp["result"] = "Invalid email or password"
+		resp['ok'] = False
+		resp['result'] = "Invalid email or password"
 	return JsonResponse(resp)
 
-def logout(request):
+def createAuthenticator(request):
+	user_id = request.POST.get('user_id')
+	user = HelprUser.objects.get(pk=user_id)
+	resp = {}
+	authenticator_hash = hmac.new(key=settings.SECRET_KEY.encode('utf-8'), msg=os.urandom(32), digestmod='sha256').hexdigest()
+	authenticator = Authenticator.objects.create(auth_user=user, authenticator=authenticator_hash)
+	try:
+		authenticator.save()
+		resp['ok'] = True
+		resp["result"] = {"authenticator": model_to_dict(authenticator)}
+	except:
+		resp['ok'] = False
+		resp['result'] = "Failed to create authenticator"
+	return JsonResponse(resp)
+
+def delete_authenticator(request):
 	authkey = request.POST.get('auth')
 	resp = {}
 	userfound = True
@@ -55,20 +64,20 @@ def logout(request):
 		resp["ok"] = False
 	return JsonResponse(resp)
 
-def validate_auth_user(request):
+def get_auth_user(request):
 	authkey = request.POST.get('auth')
 	resp = {}
 	userfound = True
 	try:
 		authenticator = Authenticator.objects.get(authenticator=authkey)
-		if authenticator.time_created < timezone.now() - datetime.timedelta(days=1):
-			userfound = False
 	except ObjectDoesNotExist:
 		userfound = False
 
 	if userfound:
 		resp["ok"] = True
-		resp["result"] = {"user": model_to_dict(authenticator.auth_user)}
+		authdict = model_to_dict(authenticator)
+		authdict['time_created'] = authenticator.time_created
+		resp["result"] = {"user": model_to_dict(authenticator.auth_user), "auth": authdict}
 	else:
 		resp["ok"] = False
 		resp["result"] = "Invalid authenticator"
