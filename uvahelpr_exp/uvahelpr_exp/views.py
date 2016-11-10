@@ -5,6 +5,7 @@ import json
 import datetime
 from django.utils import timezone
 from django.http import JsonResponse
+from elasticsearch import Elasticsearch, ElasticsearchException
 
 #Helper functions for making requests to the models layer
 ###########################################
@@ -99,4 +100,19 @@ def create_job(request):
         resp = json.loads(resp_json)
     else:
         resp = {'result': 'Invalid authenticator', 'ok': False}
+    return JsonResponse(resp)
+
+def search_listing(request):
+    post_data = request.POST.dict()
+    query = post_data.get('query')
+    resp = {}
+    try:
+        es = Elasticsearch(['es'])
+        search_res = es.search(index='listing_index', body={'query': {'query_string': {'query': query}}, 'size': 100})
+        resp['ok'] = True
+        resp['result'] = []
+        for hit in search_res['hits']['hits']:
+            resp['result'].append(hit['_source'])
+    except ElasticsearchException:
+        resp['ok'] = False
     return JsonResponse(resp)

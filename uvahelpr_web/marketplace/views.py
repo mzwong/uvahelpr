@@ -3,7 +3,7 @@ import urllib.request
 import urllib.parse
 from urllib.error import HTTPError
 import json
-from .forms import LoginForm, CreateAccountForm, CreateListingForm
+from .forms import LoginForm, CreateAccountForm, CreateListingForm, SearchForm
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.core.urlresolvers import reverse
 # Create your views here.
@@ -152,3 +152,22 @@ def create_account(request):
 	response = HttpResponseRedirect(reverse('index'))
 	response.set_cookie("auth", authenticator["authenticator"])
 	return response
+
+def search_listing(request):
+	search_res = None
+	if request.method=='GET':
+		form = SearchForm()
+		return render(request, 'marketplace/search_listing.html', {'form': form, 'res': search_res})
+	form = SearchForm()
+	if not form.is_valid():
+		return render(request, 'marketplace/search_listing.html', {'form': form, 'res': search_res})
+	post_data = {
+		'query': form.cleaned_data['query']
+	}
+	post_encoded = urllib.parse.urlencode(post_data).encode('utf-8')
+	req = urllib.request.Request('http://exp-api:8000/search/', data=post_encoded, method='POST')
+	resp_json = urllib.request.urlopen(req).read().decode('utf-8')
+	resp = json.loads(resp_json)
+	if resp['ok']:
+		search_res = resp['result']
+	return render(request, 'marketplace/search_listing.html', {'form': form, 'res': search_res})
