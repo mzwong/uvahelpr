@@ -1,0 +1,18 @@
+{% extends "marketplace/base.html" %}
+{% block content %}
+<div clas="page-header">
+    <h1>Job Search</h1>
+</div>
+<br/>
+{% include "marketplace/search_bar.html" %}
+
+{% if res %}
+  <h2>Results</h2>
+    {% for job in res %}
+    {% url 'job_entry' job.id as specific_job_url %}
+    <h3><a href="{{ specific_job_url }}">{{ job.title }}</a></h3>
+	<p>{{ job.description }}</p>
+    {% endfor %}
+{% endif %}
+
+{% endblock %}
