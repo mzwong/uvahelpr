@@ -157,10 +157,10 @@ def search_listing(request):
 	search_res = None
 	if request.method=='GET':
 		form = SearchForm()
-		return render(request, 'marketplace/search_listing.html', {'search_form': form, 'res': search_res})
+		return render(request, 'marketplace/search_listing.html', {'search_form': form, 'res': search_res, 'firstvisit': True})
 	form = SearchForm(request.POST)
 	if not form.is_valid():
-		return render(request, 'marketplace/search_listing.html', {'search_form': form, 'res': search_res})
+		return render(request, 'marketplace/search_listing.html', {'search_form': form, 'res': search_res, 'firstvisit': False})
 	post_data = {
 		'query': form.cleaned_data['query']
 	}
@@ -170,4 +170,4 @@ def search_listing(request):
 	resp = json.loads(resp_json)
 	if resp['ok']:
 		search_res = resp['result']
-	return render(request, 'marketplace/search_listing.html', {'search_form': form, 'res': search_res})
+	return render(request, 'marketplace/search_listing.html', {'search_form': form, 'res': search_res, 'firstvisit': False})

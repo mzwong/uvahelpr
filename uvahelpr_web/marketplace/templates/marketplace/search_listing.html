@@ -16,6 +16,8 @@
     <h3><a href="{{ specific_job_url }}">{{ job.title }}</a></h3>
 	<p>{{ job.description }}</p>
     {% endfor %}
+{% elif not firstvisit %}
+  <h3>No results found :(</h3>
 {% endif %}
 
 {% endblock %}
