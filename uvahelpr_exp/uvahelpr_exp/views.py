@@ -5,6 +5,7 @@ import json
 import datetime
 from django.utils import timezone
 from django.http import JsonResponse
+from kafka import KafkaProducer
 from elasticsearch import Elasticsearch, ElasticsearchException
 
 #Helper functions for making requests to the models layer
@@ -88,16 +89,15 @@ def create_job(request):
     auth = post_data.get('auth')
     post_data.pop('auth')
     auth_dict = {'auth': auth}
-    auth_encoded = urllib.parse.urlencode(auth_dict).encode('utf-8')
-    req2 = urllib.request.Request('http://models-api:8000/api/v1/auth_user/', data=auth_encoded, method='POST')
-    resp_json2 = urllib.request.urlopen(req2).read().decode('utf-8')
-    user = json.loads(resp_json2)
+    user = requestHelperPost('auth_user/', auth_dict)
     if user['ok']:
         post_data['requester'] = user['result']['user']['id']
-        post_encoded = urllib.parse.urlencode(post_data).encode('utf-8')
-        req = urllib.request.Request('http://models-api:8000/api/v1/create_job/', data=post_encoded, method='POST')
-        resp_json = urllib.request.urlopen(req).read().decode('utf-8')
-        resp = json.loads(resp_json)
+        resp = requestHelperPost('create_job/', post_data)
+        # if the user is valid send the new listing to the kafka queue as well as the model layer api
+        if resp['ok']:
+            job_resp =  requestHelperGet('jobs/' + str(resp['result']['id']) + '/')
+            producer = KafkaProducer(bootstrap_servers='kafka:9092')
+            producer.send('new-listings-topic', json.dumps(job_resp["result"]).encode('utf-8'))
     else:
         resp = {'result': 'Invalid authenticator', 'ok': False}
     return JsonResponse(resp)
@@ -113,6 +113,6 @@ def search_listing(request):
         resp['result'] = []
         for hit in search_res['hits']['hits']:
             resp['result'].append(hit['_source'])
-    except ElasticsearchException:
+    except ElasticsearchException as e:
         resp['ok'] = False
     return JsonResponse(resp)

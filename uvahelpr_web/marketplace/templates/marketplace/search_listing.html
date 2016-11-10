@@ -4,8 +4,11 @@
     <h1>Job Search</h1>
 </div>
 <br/>
-{% include "marketplace/search_bar.html" %}
-
+<div class="row">
+    <div class="col-lg-12">
+      {% include "marketplace/search_bar.html" %}
+    </div>
+</div>
 {% if res %}
   <h2>Results</h2>
     {% for job in res %}
@@ -13,6 +16,8 @@
     <h3><a href="{{ specific_job_url }}">{{ job.title }}</a></h3>
 	<p>{{ job.description }}</p>
     {% endfor %}
+{% elif not firstvisit %}
+  <h3>No results found :(</h3>
 {% endif %}
 
 {% endblock %}

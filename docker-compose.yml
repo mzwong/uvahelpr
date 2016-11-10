@@ -12,8 +12,8 @@ exp:
     image: tp33/django
     links:
       -  models:models-api
-      - kafka:kafka
-      - es:es
+      -  kafka:kafka
+      -  es:es
     volumes:
       - ./uvahelpr_exp:/app
     ports:
