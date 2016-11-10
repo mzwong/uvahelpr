@@ -23,3 +23,6 @@ class CreateAccountForm(forms.Form):
     last_name = forms.CharField(label='Last Name', max_length=32)
     phone_number = forms.RegexField(label='Phone Number', regex=r'^\+?1?\d{9,15}$', max_length=17)
     skills = forms.CharField(label='Skills', max_length=1000, required=False)
+
+class SearchForm(forms.Form):
+    query = forms.CharField(label='Search Query', max_length=1000)
