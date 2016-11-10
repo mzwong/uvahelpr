@@ -10,6 +10,7 @@ urlpatterns = [
     url(r'^create_listing/$', views.create_listing, name='create_listing'),
     url(r'^create_listing_success/$', views.create_listing_success, name='create_listing_success'),
     url(r'^logout/$', views.logout, name='logout'),
+    url(r'^search/$', views.search_listing, name='search_listing'),
     url(r'^create_account/$', views.create_account, name='create_account'),
-    url(r'^search/$', views.search_listing, name='search_listing')
+
 ]

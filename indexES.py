@@ -9,5 +9,5 @@ es = Elasticsearch(['es'])
 
 for listing in consumer:
     listingjson = json.loads((listing.value).decode('utf-8'))
-    es.index(index='listing_index', doc_type='listing', id=listingjson['id'], body=listing)
+    es.index(index='listing_index', doc_type='listing', id=listingjson['id'], body=listingjson)
     es.indices.refresh(index="listing_index")

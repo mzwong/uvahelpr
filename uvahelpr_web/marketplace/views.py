@@ -158,7 +158,7 @@ def search_listing(request):
 	if request.method=='GET':
 		form = SearchForm()
 		return render(request, 'marketplace/search_listing.html', {'form': form, 'res': search_res})
-	form = SearchForm()
+	form = SearchForm(request.POST)
 	if not form.is_valid():
 		return render(request, 'marketplace/search_listing.html', {'form': form, 'res': search_res})
 	post_data = {
