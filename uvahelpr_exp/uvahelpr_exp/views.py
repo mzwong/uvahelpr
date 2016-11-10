@@ -98,7 +98,8 @@ def create_job(request):
         req = urllib.request.Request('http://models-api:8000/api/v1/create_job/', data=post_encoded, method='POST')
         resp_json = urllib.request.urlopen(req).read().decode('utf-8')  # if the user is valid send the new listing to the kafka queue as well as the model layer api
         producer = KafkaProducer(bootstrap_servers='kafka:9092')
-        producer.send('new-listings-topic', json.dumps(post_encoded).encode('utf-8'))
+        #return JsonResponse(post_data)
+        producer.send('new-listings-topic', json.dumps(post_data).encode('utf-8'))
         resp = json.loads(resp_json)
     else:
         resp = {'result': 'Invalid authenticator', 'ok': False}
