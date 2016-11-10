@@ -50,4 +50,6 @@ batch:
    links:
       - kafka:kafka
       - es:es
+   volumes:
+      - ./:/app
    command: bash -c "python indexES.py"
