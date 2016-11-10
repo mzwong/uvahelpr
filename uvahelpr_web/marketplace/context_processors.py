@@ -1,6 +1,7 @@
 import urllib.request
 import urllib.parse
 import json
+from .forms import SearchForm
 
 def loggedIn_processor(request):
     try:
@@ -17,3 +18,7 @@ def loggedIn_processor(request):
         return {'logged_in_user_name' : first_name, 'loggedin': True}
     else:
         return {'loggedin': False}
+
+def searchbar_processor(request):
+    header_search_bar = SearchForm()
+    return {'search_form': header_search_bar}

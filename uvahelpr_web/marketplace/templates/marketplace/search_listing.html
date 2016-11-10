@@ -4,8 +4,11 @@
     <h1>Job Search</h1>
 </div>
 <br/>
-{% include "marketplace/search_bar.html" %}
-
+<div class="row">
+    <div class="col-lg-12">
+      {% include "marketplace/search_bar.html" %}
+    </div>
+</div>
 {% if res %}
   <h2>Results</h2>
     {% for job in res %}

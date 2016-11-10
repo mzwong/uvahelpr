@@ -65,6 +65,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'marketplace.context_processors.loggedIn_processor',
+                'marketplace.context_processors.searchbar_processor',
             ],
         },
     },
