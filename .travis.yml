@@ -1,11 +1,11 @@
 sudo: required
- dist: trusty # google-cloud-engine mod of ubuntu 14.04.3 LTS
+dist: trusty # google-cloud-engine mod of ubuntu 14.04.3 LTS
  
  # if specific versions of docker or docker-compose are needed, see travis-CI docs
- services:
+services:
    - docker # default is docker 1.8.2 and docker-compose 1.4.2 (as of Oct. 2016)
  
- install: # prepare mySQL database
+install: # prepare mySQL database
    - docker pull mysql:5.7.14
    - mkdir db
    - >
@@ -20,10 +20,10 @@ sudo: required
      CREATE USER 'www'@'%' IDENTIFIED BY '\$3cureUS';
      GRANT ALL PRIVILEGES ON *.* TO 'www'@'%';"
  
- before_script:
+before_script:
    - docker-compose up -d
  
- script:
+script:
    - >
      docker exec -it uvahelpr_models bash -c     # 'models' is the name of the docker container
      "python manage.py test" # run Django unit tests on models
@@ -35,7 +35,7 @@ sudo: required
      "python manage.py test"
    # can put other tests (e.g. integrations) here too with exp, web containers
  
- after_script:
+after_script:
    - docker-compose stop
    - docker stop mysql
    - docker rm `docker ps -a -q`
