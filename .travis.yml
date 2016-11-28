@@ -25,13 +25,13 @@ before_script:
  
 script:
    - >
-     docker exec -it uvahelpr_models bash -c     # 'models' is the name of the docker container
+     docker exec -it uvahelpr_models_1 bash -c     # 'models' is the name of the docker container
      "python manage.py test" # run Django unit tests on models
      
-     docker exec -it uvahelpr_exp bash -c
+     docker exec -it uvahelpr_exp_1 bash -c
      "python manage.py test"
      
-     docker exec -it uvahelpr_web -c
+     docker exec -it uvahelpr_web_1 -c
      "python manage.py test"
    # can put other tests (e.g. integrations) here too with exp, web containers
  
