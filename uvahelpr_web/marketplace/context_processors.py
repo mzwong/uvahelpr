@@ -1,6 +1,6 @@
 import urllib.request
 import urllib.parse
-import json
+import json, os
 from .forms import SearchForm
 
 def loggedIn_processor(request):
@@ -22,3 +22,6 @@ def loggedIn_processor(request):
 def searchbar_processor(request):
     header_search_bar = SearchForm()
     return {'search_form': header_search_bar}
+
+def webservername_processor(request):
+    return {'container': os.environ['EXP_API_NAME'][1:-10]}
