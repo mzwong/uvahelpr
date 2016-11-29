@@ -4,10 +4,8 @@ models:
       -  mysql:db
     volumes:
       - ./uvahelpr_models:/app
-    ports:
-      - "8001:8000"
     command: bash -c "python manage.py makemigrations && python manage.py migrate && python manage.py loaddata db.json && mod_wsgi-express start-server --reload-on-changes ./uvahelpr_models/wsgi.py ./uvahelpr_web/wsgi.py --url-alias /static ./static"
-#
+
 exp:
     image: tp33/django
     links:
@@ -16,8 +14,6 @@ exp:
       -  es:es
     volumes:
       - ./uvahelpr_exp:/app
-    ports:
-      - "8002:8000"
     command: bash -c "mod_wsgi-express start-server --reload-on-changes ./uvahelpr_exp/wsgi.py"
 
 web:
@@ -26,6 +22,8 @@ web:
       -  exp:exp-api
     volumes:
       - ./uvahelpr_web:/app
+    environment:
+      - SECRET_KEY='c!$ghzr8orm3s(2a*0ei!)0u0ezgiu**9#nwm)bjz8-f&+madh'
     ports:
       - "8000:8000"
     command: bash -c "mod_wsgi-express start-server --reload-on-changes ./uvahelpr_web/wsgi.py --url-alias /static ./static"
@@ -41,8 +39,6 @@ kafka:
 es:
    image: elasticsearch:2.0
    container_name: es
-   ports:
-      - "9200:9200"
 
 batch:
    image: tp33/django
