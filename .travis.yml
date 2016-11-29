@@ -26,8 +26,8 @@ before_script:
  
 script:
    - >
-     docker exec -it uvahelpr_models_1 bash     
-     "python manage.py test" # run Django unit tests on models
+     docker exec -it uvahelpr_models_1 bash  
+     "echo * && python manage.py test" # run Django unit tests on models
    # can put other tests (e.g. integrations) here too with exp, web containers
  
 after_script:
