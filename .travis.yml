@@ -27,9 +27,6 @@ script:
    - >
      docker exec -it uvahelpr_models_1 bash -c
      "python manage.py test" 
-   
-     docker exec -it uvahelpr_exp_1 bash -c
-     "python manage.py test"
  
 after_script:
    - docker-compose stop
