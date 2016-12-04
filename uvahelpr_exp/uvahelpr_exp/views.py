@@ -115,4 +115,5 @@ def search_listing(request):
             resp['result'].append(hit['_source'])
     except ElasticsearchException as e:
         resp['ok'] = False
+        resp['result'] = e
     return JsonResponse(resp)
