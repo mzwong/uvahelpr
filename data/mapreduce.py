@@ -17,7 +17,7 @@ click_pairs = click_pairs.groupBy(lambda pair: pair[1])
 #keep just the id
 click_pairs = click_pairs.map(lambda pair: (pair[0], [p[0] for p in pair[1]]))
 #get the sum of the number of users for each pair of items
-click_counts = click_pairs.map(lambda pair: (pair[0], len(pair[1])))
+click_counts = click_pairs.map(lambda pair: (pair[0], len(set(pair[1]))))
 #take only combinations with at least 3 users
 results = click_counts.filter(lambda pair: pair[1] > 2)
 
