@@ -5,7 +5,6 @@ sc = SparkContext("spark://spark-master:7077", "PopularItems")
 data = sc.textFile("/tmp/data/access.log", 2)     # each worker loads a piece of the data file
 
 pairs = data.map(lambda line: line.split("\t"))   # tell each worker to split each line of it's partition
-
 #group by user_id
 user_itemlists = pairs.groupByKey()
 #do a cross-product of item_ids x item_ids
@@ -25,6 +24,4 @@ results = click_counts.filter(lambda pair: pair[1] > 2)
 output = results.collect()                          # bring the data back to the master node so we can print it out
 for user, items in output:
     print (str(user) + " "  + str(items))
-print ("Popular items done")
-
 sc.stop()
